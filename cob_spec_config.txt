@@ -5,7 +5,7 @@
 !path target/Fixtures-1.0.jar
 
 !3 User-Defined Variables
-!define SERVER_START_COMMAND {./Server}
+!define SERVER_START_COMMAND {./Main}
 !define PUBLIC_DIR {./public}
 
 !contents -R2 -g -p -f -h

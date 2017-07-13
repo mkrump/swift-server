@@ -1,5 +1,10 @@
 import Foundation
 
+public struct Args {
+    public var portNumber: Int
+    public var directory: String
+}
+
 enum CommandLineError: Error {
     case missingRequiredArgument
     case unknownOption
@@ -11,15 +16,15 @@ public class CommandLineArgParser {
     }
 
     public func getOpt(argc: Int32,
-                       argv: UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>) throws -> [String: String] {
+                       argv: UnsafeMutablePointer<UnsafeMutablePointer<Int8>?>) throws -> Args {
 
-        var p: String?
+        var p: Int?
         var d: String?
 
         while case let option = getopt(argc, argv, "d:p:"), option != -1 {
             switch UnicodeScalar(CUnsignedChar(option)) {
             case "p":
-                p = String(cString: optarg)
+                p = Int(String(cString: optarg))
             case "d":
                 d = String(cString: optarg)
             default:
@@ -31,6 +36,6 @@ public class CommandLineArgParser {
               let directory = d else {
             throw CommandLineError.missingRequiredArgument
         }
-        return ["portNumber": portValue, "directory": directory]
+        return Args(portNumber: portValue, directory: directory)
     }
 }
