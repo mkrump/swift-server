@@ -8,8 +8,8 @@ Swift 3.0+
 ### Running
 ```
 cd ./SwiftServer
-swift build`
-.build/debug/Main -p <port> -d <directory>`
+swift build
+.build/debug/Main -p <port> -d <directory>
 ```
 
 ### Tests

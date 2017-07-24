@@ -10,7 +10,7 @@ class SwiftServerTests: XCTestCase {
         super.setUp()
         do {
             server = try Server(portNumber: 5000, directory: "/tmp")
-            queue = DispatchQueue(label: "queue1", qos: .background)
+            queue = DispatchQueue(label: "queue1", qos: .default)
             queue.async {
                 do {
                     try self.server.start()
@@ -29,31 +29,19 @@ class SwiftServerTests: XCTestCase {
         server.stop()
     }
 
-    func testCanConnect() {
-        do {
-            let clientSocket = try Socket.create()
-            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
-            XCTAssertTrue(clientSocket.isConnected)
-        } catch {
-            XCTFail()
-        }
-    }
+//    func testCanConnect() {
+//        do {
+//            let clientSocket = try Socket.create()
+//            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
+//            XCTAssertTrue(clientSocket.isConnected)
+//        } catch {
+//            XCTFail()
+//        }
+//    }
 
-    func testCanReadWrite() {
-        var readData = Data()
-        do {
-            let clientSocket = try Socket.create()
-            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
-            try clientSocket.write(from: "HI")
-            _ = try clientSocket.read(into: &readData)
-            guard let response = String(data: readData, encoding: String.Encoding.utf8) else {
-                print("Couldn't Interpret response")
-                XCTFail()
-                return
-            }
-            XCTAssertNotNil(response)
-        } catch {
-            XCTFail()
-        }
-    }
+//    func testCanStop() {
+//        server.stop()
+//        XCTAssertFalse(server.listener.isListening)
+//        XCTAssertFalse(server.listener.isConnected)
+//    }
 }

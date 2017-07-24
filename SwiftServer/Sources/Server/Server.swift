@@ -1,5 +1,7 @@
 import Foundation
 import Socket
+import HTTPResponse
+import HTTPRequest
 
 enum ServerErrors: Error {
     case socketCreationFailed
@@ -11,7 +13,11 @@ public class Server {
     let directory: String
     let hostName: String
     var serverRunning: Bool
+    var routes: Routes!
     public var listener: Socket
+    let badRequestResponse = HTTPResponse().setVersion(version: 1.1)
+            .setResponseCode(responseCode: ResponseCodes.BAD_REQUEST)
+            .generateResponse()
 
     public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1") throws {
         self.portNumber = portNumber
@@ -27,25 +33,49 @@ public class Server {
     }
 
     public func start() throws {
+        routes = setupRoutes()
         serverRunning = true
-        let responseData = Data("HTTP/1.1 200 OK\r\n\r\nHello!".utf8)
         repeat {
-            var readData = Data()
             let clientSocket = try listener.acceptClientConnection()
-            _ = try clientSocket.read(into: &readData)
-            guard let request = String(data: readData, encoding: String.Encoding.utf8) else {
-                throw ServerErrors.badRequest
+            guard let request = try? readClientSocket(clientSocket: clientSocket),
+                  let parsedRequest = try? parseRequest(request: request) else {
+                try clientSocket.write(from: badRequestResponse)
+                clientSocket.close()
+                continue
             }
-            if request.hasPrefix("ZZZ") {
-                serverRunning = false
-            }
-            try clientSocket.write(from: responseData)
-            clientSocket.close()
+            try respond(startLine: parsedRequest.startLine, clientSocket: clientSocket)
         } while serverRunning
     }
 
     public func stop() {
         serverRunning = false
         listener.close()
+    }
+
+    private func respond(startLine: RequestLine, clientSocket: Socket) throws {
+        let response = routes.routeRequest(target: startLine.target, method: startLine.httpMethod)
+        let responseData = response.generateResponse()
+        try clientSocket.write(from: responseData)
+        clientSocket.close()
+    }
+
+    private func parseRequest(request: String) throws -> HTTPRequestParser {
+        guard let parsedRequest = try? HTTPRequestParser(request: request) else {
+            throw ServerErrors.badRequest
+        }
+        return parsedRequest
+    }
+
+    private func readClientSocket(clientSocket: Socket) throws -> String {
+        var readData = Data()
+        _ = try clientSocket.read(into: &readData)
+        guard let request = String(data: readData, encoding: String.Encoding.utf8) else {
+            throw ServerErrors.badRequest
+        }
+        if request.hasPrefix("QUIT") {
+            clientSocket.close()
+            stop()
+        }
+        return request
     }
 }
