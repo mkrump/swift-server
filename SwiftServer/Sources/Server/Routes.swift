@@ -1,5 +1,6 @@
 import Foundation
 import HTTPResponse
+import HTTPRequest
 import FileSystem
 import Templates
 
@@ -33,15 +34,25 @@ public class Routes {
         return Data()
     }
 
-    public func routeRequest(target: String, method: String, path: String, fileManager: FileSystem) -> HTTPResponse {
+    private func isValidRoute(routes: [String: Route], target: String) -> Route? {
+        if let route = routes[target] {
+            return route
+        }
+        return nil
+    }
+
+    public func routeRequest(request: HTTPRequestParse, path: String, fileManager: FileSystem) -> HTTPResponse {
+        let startLine = request.startLine!
+        let data = request.messageBody ?? ""
+        let url = path + startLine.target
         var isDir: ObjCBool = false
-        let url = path + target
         if fileManager.fileExists(atPath: url, isDirectory: &isDir) {
             let message = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
             return CommonResponses.OKResponse.setMessage(message: message)
-        } else if let route = routes[target] {
-            return route.handleRequest(method: method)
+        } else if var route = isValidRoute(routes: routes, target: startLine.target) {
+            return route.handleRequest(method: startLine.httpMethod, data: Data(data.utf8))
+        } else {
+            return CommonResponses.NotFoundResponse
         }
-        return CommonResponses.NotFoundResponse
     }
 }

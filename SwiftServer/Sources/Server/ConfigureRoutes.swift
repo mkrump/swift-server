@@ -1,10 +1,11 @@
 import Foundation
 import HTTPResponse
+import Templates
 
 public protocol Route {
     var url: String { get }
     var methods: [String] { get }
-    func handleRequest(method: String) -> HTTPResponse
+    mutating func handleRequest(method: String, data: Data) -> HTTPResponse
 }
 
 func optionsResponse(methods: [String]) -> HTTPResponse {
@@ -14,24 +15,66 @@ func optionsResponse(methods: [String]) -> HTTPResponse {
             .addHeader(key: "Allow", value: methods.joined(separator: ","))
 }
 
-struct RootRoute: Route {
+class RootRoute: Route {
     var url: String
     var methods: [String]
 
-    func handleRequest(method: String) -> HTTPResponse {
+    init(url: String, methods: [String]) {
+        self.url = url
+        self.methods = methods
+    }
+
+    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
         return HTTPResponse()
                 .setVersion(version: 1.1)
                 .setResponseCode(responseCode: ResponseCodes.OK)
                 .setMessage(message: Data("Hello!".utf8))
     }
-
 }
 
-struct methodOptions: Route {
+class FormRoute: Route {
+    var url: String
+    var methods: [String]
+    var formData: Data
+
+    init(url: String, methods: [String]) {
+        self.url = url
+        self.methods = methods
+        self.formData = Data()
+    }
+
+    func handleRequest(method: String, data: Data) -> HTTPResponse {
+        switch method {
+        case "DELETE": do {
+            formData = Data()
+            let form = generateForm(target: self.url, data: formData)
+            return CommonResponses.OKResponse.setMessage(message: Data(form.utf8))
+        }
+        case "POST", "PUT": do {
+            formData = data
+            let form = generateForm(target: self.url, data: formData)
+            return CommonResponses.OKResponse.setMessage(message: Data(form.utf8))
+        }
+        case "GET": do {
+            let form = generateForm(target: self.url, data: formData)
+            return CommonResponses.OKResponse.setMessage(message: Data(form.utf8))
+        }
+        default:
+            return CommonResponses.NotFoundResponse
+        }
+    }
+}
+
+class methodOptions: Route {
     var url: String
     var methods: [String]
 
-    func handleRequest(method: String) -> HTTPResponse {
+    init(url: String, methods: [String]) {
+        self.url = url
+        self.methods = methods
+    }
+
+    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
         if method == "OPTIONS" {
             return optionsResponse(methods: methods)
         }
@@ -41,11 +84,16 @@ struct methodOptions: Route {
     }
 }
 
-struct methodOptions2: Route {
+class methodOptions2: Route {
     var url: String
     var methods: [String]
 
-    func handleRequest(method: String) -> HTTPResponse {
+    init(url: String, methods: [String]) {
+        self.url = url
+        self.methods = methods
+    }
+
+    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
         if method == "OPTIONS" {
             return optionsResponse(methods: methods)
         }
@@ -59,7 +107,7 @@ func setupRoutes() -> Routes {
     let serverRoutes = Routes()
     serverRoutes.addRoute(route: RootRoute(url: "/",
             methods: ["GET", "POST", "PUT"]))
-    serverRoutes.addRoute(route: RootRoute(url: "/form",
+    serverRoutes.addRoute(route: FormRoute(url: "/form",
             methods: ["GET", "POST", "PUT"]))
     serverRoutes.addRoute(route: methodOptions(url: "/method_options",
             methods: ["GET", "HEAD", "POST", "OPTIONS", "PUT"]))

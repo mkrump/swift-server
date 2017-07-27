@@ -25,7 +25,7 @@ class HTTPRequestParserTests: XCTestCase {
     }
 
     func testHTTPParserTopLevelParse() {
-        if let httpRequestParser = try? HTTPRequestParser(request: testMessage),
+        if let httpRequestParser = try? HTTPParsedRequest(request: testMessage),
            let startLine = httpRequestParser.startLine,
            let headers = httpRequestParser.headers,
            let messageBody = httpRequestParser.messageBody {
@@ -39,7 +39,7 @@ class HTTPRequestParserTests: XCTestCase {
     }
 
     func testHTTPParserHeaderParse() {
-        guard let httpRequestParser = try? HTTPRequestParser(request: testMessage),
+        guard let httpRequestParser = try? HTTPParsedRequest(request: testMessage),
               let headers = httpRequestParser.headers else {
             XCTFail()
             return
@@ -48,11 +48,11 @@ class HTTPRequestParserTests: XCTestCase {
     }
 
     func testBadRequest() {
-        XCTAssertThrowsError(try HTTPRequestParser(request: "BAD REQUEST!!!"))
+        XCTAssertThrowsError(try HTTPParsedRequest(request: "BAD REQUEST!!!"))
     }
 
     func testBadStartLine() {
-        XCTAssertThrowsError(try HTTPRequestParser(request: "POST /route"))
+        XCTAssertThrowsError(try HTTPParsedRequest(request: "POST /route"))
     }
 
     func testStartLineParse() {

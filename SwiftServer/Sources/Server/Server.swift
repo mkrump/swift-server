@@ -43,7 +43,7 @@ public class Server {
                 clientSocket.close()
                 continue
             }
-            try respond(startLine: parsedRequest.startLine, clientSocket: clientSocket)
+            try respond(request: parsedRequest, clientSocket: clientSocket)
         } while serverRunning
     }
 
@@ -52,16 +52,15 @@ public class Server {
         listener.close()
     }
 
-    private func respond(startLine: RequestLine, clientSocket: Socket) throws {
-        let response = routes.routeRequest(target: startLine.target, method: startLine.httpMethod,
-                path: self.directory, fileManager: fileManager)
+    private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
+        let response = routes.routeRequest(request: request, path: self.directory, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         clientSocket.close()
     }
 
-    private func parseRequest(request: String) throws -> HTTPRequestParser {
-        guard let parsedRequest = try? HTTPRequestParser(request: request) else {
+    private func parseRequest(request: String) throws -> HTTPRequestParse {
+        guard let parsedRequest = try? HTTPParsedRequest(request: request) else {
             throw ServerErrors.badRequest
         }
         return parsedRequest

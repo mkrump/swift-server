@@ -1,47 +1,81 @@
 import XCTest
 import Socket
 import HTTPResponse
+import HTTPRequest
 import FileSystem
 @testable import Server
 
 struct MockRoute: Route {
     var url: String
     var methods: [String] = []
-    var requestHandler: () -> HTTPResponse
+    var requestHandler: (String, Data) -> HTTPResponse
 
-    func handleRequest(method: String) -> HTTPResponse {
-        return requestHandler()
+    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
+        return requestHandler(method, data)
     }
 }
 
-public class MockFileManager: FileSystem {
+public class MockRequestLine: RequestLineParse {
+    public var httpMethod: String
+    public var target: String
+    public var httpVersion: String
 
-    public func contentsOfDirectory(atPath path: String) throws -> [String] {
-        return ["dir1", "dir2"]
+    init(httpMethod: String, target: String, httpVersion: String) {
+        self.httpMethod = httpMethod
+        self.target = target
+        self.httpVersion = httpVersion
+    }
+}
+
+public class MockHTTParsedRequest: HTTPRequestParse {
+    public var startLine: RequestLineParse!
+    public var headers: String?
+    public var messageBody: String?
+
+    init(startLine: RequestLineParse, headers: String? = nil, messageBody: String? = nil) {
+        self.headers = headers
+        self.messageBody = messageBody
+        self.startLine = startLine
     }
 
+}
+
+public class MockIsRoute: FileSystem {
     public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
+        if let isDir = isDirectory {
+            isDir.pointee = false
+        }
+        return false
+    }
+
+    public func contentsOfDirectory(atPath path: String) throws -> [String] {
+        return []
+    }
+
+    public func contents(atPath path: String) -> Data? {
+        return nil
+    }
+}
+
+public class MockIsFile: MockIsRoute {
+
+    override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
         if let isDir = isDirectory {
             isDir.pointee = false
         }
         return true
     }
 
-    public func contents(atPath path: String) -> Data? {
+    override public func contentsOfDirectory(atPath path: String) throws -> [String] {
+        return ["dir1", "dir2"]
+    }
+
+    override public func contents(atPath path: String) -> Data? {
         return Data("Hi!".utf8)
     }
 }
 
-public class MockNoFile: MockFileManager {
-    override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
-        if let isDir = isDirectory {
-            isDir.pointee = false
-        }
-        return false
-    }
-}
-
-public class MockIsDir: MockFileManager {
+public class MockIsDir: MockIsRoute {
     override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
         if let isDir = isDirectory {
             isDir.pointee = true
@@ -53,14 +87,14 @@ public class MockIsDir: MockFileManager {
 class RoutesTests: XCTestCase {
     var routes: Routes!
     var mockValidRoute: Route!
-    var mockFileManager: MockFileManager!
+    var mockFileManager: MockIsRoute!
 
     override func setUp() {
-        mockFileManager = MockFileManager()
+        mockFileManager = MockIsRoute()
         routes = Routes()
         mockValidRoute = MockRoute(url: "/valid",
                 methods: ["HEAD"],
-                requestHandler: { () -> HTTPResponse in
+                requestHandler: { (_: String, _: Data) -> HTTPResponse in
                     return HTTPResponse().setResponseCode(responseCode: ResponseCodes.OK)
                 })
         routes.addRoute(route: mockValidRoute)
@@ -73,30 +107,34 @@ class RoutesTests: XCTestCase {
     }
 
     func testBadRoute() {
-        let mockNoDirFileManager = MockNoFile()
-        let response = routes.routeRequest(target: "/no-route-here", method: "HEAD", path: "/public",
-                fileManager: mockNoDirFileManager)
+        let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: "/no-route-here", httpVersion: "HTTP/1.1")
+        let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
+        let mockNoDirFileManager = MockIsRoute()
+        let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockNoDirFileManager)
         XCTAssertEqual(response.responseCode!.code, 404)
     }
 
     func testGoodRouteNotFile() {
-        let mockNoDirFileManager = MockNoFile()
-        let response = routes.routeRequest(target: "/valid", method: "HEAD", path: "/public",
-                fileManager: mockNoDirFileManager)
+        let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: "/valid", httpVersion: "HTTP/1.1")
+        let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
+        let mockNoDirFileManager = MockIsRoute()
+        let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockNoDirFileManager)
         XCTAssertEqual(response.responseCode!.code, 200)
     }
 
     func testisDir() {
-        let mockNoDirFileManager = MockIsDir()
-        let response = routes.routeRequest(target: "/dir", method: "HEAD", path: "/public",
-                fileManager: mockNoDirFileManager)
+        let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: "/dir", httpVersion: "HTTP/1.1")
+        let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
+        let mockDirFileManager = MockIsDir()
+        let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockDirFileManager)
         XCTAssertEqual(response.responseCode!.code, 200)
     }
 
     func testisFile() {
-        let mockFileManager = MockFileManager()
-        let response = routes.routeRequest(target: "/dir", method: "HEAD", path: "/file.txt",
-                fileManager: mockFileManager)
+        let mockStartLine = MockRequestLine(httpMethod: "GET", target: "/file.txt", httpVersion: "HTTP/1.1")
+        let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
+        let mockFileManager = MockIsFile()
+        let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockFileManager)
         XCTAssertEqual(response.responseCode!.code, 200)
     }
 }

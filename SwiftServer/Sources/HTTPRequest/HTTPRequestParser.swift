@@ -4,48 +4,52 @@ enum ParsingErrors: Error {
     case BadRequest
 }
 
-public class RequestLine {
-    public var httpMethod: String
-    public var target: String
-    public var httpVersion: String
+public protocol HTTPRequestParse {
+    var startLine: RequestLineParse! { get }
+    var headers: String? { get }
+    var messageBody: String? { get }
 
-    init(requestLine: String) throws {
-        var requestLineArray = requestLine.components(separatedBy: " ")
-        if requestLineArray.count != 3 {
-            throw ParsingErrors.BadRequest
-        }
-        httpMethod = requestLineArray[0]
-        target = requestLineArray[1]
-        httpVersion = requestLineArray[2]
-    }
 }
 
-public class HTTPRequestParser {
-    public var startLine: RequestLine!
+public class HTTPParsedRequest: HTTPRequestParse {
+    public var startLine: RequestLineParse!
     public var headers: String?
     public var messageBody: String?
 
     public init(request: String) throws {
-        try parseHTTPRequest(request: request)
+        let messageParts = try parseHTTPRequest(request: request)
+        messageBody = messageParts.messageBody ?? nil
+        let headerAndRequestLine = parseHeaderAndRequestLine(
+                headerAndMessageRequestLine: messageParts.headerAndRequestLine)
+        headers = headerAndRequestLine.headers ?? nil
+        startLine = try parseRequestLine(requestLine: headerAndRequestLine.requestLine)
     }
 
-    func parseHTTPRequest(request: String) throws {
+    func parseRequestLine(requestLine: String) throws -> RequestLineParse {
+        guard let requestLine = try? RequestLine(requestLine: requestLine) else {
+            throw ParsingErrors.BadRequest
+        }
+        return requestLine
+    }
+
+    func parseHTTPRequest(request: String) throws -> (headerAndRequestLine: String, messageBody: String?) {
         if !request.contains("\r\n\r\n") {
             throw ParsingErrors.BadRequest
         }
         let stringArray = request.components(separatedBy: "\r\n\r\n")
-        let nonMessageBody = stringArray[0]
-        try parseHeaders(nonMessageBody: nonMessageBody)
         if stringArray.count > 1 {
-            messageBody = stringArray[1]
+            return (headerAndRequestLine: stringArray[0], messageBody: stringArray[1])
         }
+        return (headerAndRequestLine: stringArray[0], messageBody: nil)
     }
 
-    func parseHeaders(nonMessageBody: String) throws {
-        var headerArray = nonMessageBody.characters.split(separator: "\r\n", maxSplits: 1).map(String.init)
-        startLine = try RequestLine(requestLine: headerArray[0])
+    func parseHeaderAndRequestLine(headerAndMessageRequestLine: String) -> (requestLine: String, headers: String?) {
+        var headerArray = headerAndMessageRequestLine.characters
+                .split(separator: "\r\n", maxSplits: 1)
+                .map(String.init)
         if headerArray.count > 1 {
-            headers = headerArray[1]
+            return (requestLine: headerArray[0], headers: headerArray[1])
         }
+        return (requestLine: headerArray[0], headers: nil)
     }
 }
