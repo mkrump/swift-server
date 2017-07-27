@@ -2,6 +2,8 @@ import Foundation
 import Socket
 import HTTPResponse
 import HTTPRequest
+import Routes
+import AppRoutes
 import FileSystem
 
 enum ServerErrors: Error {

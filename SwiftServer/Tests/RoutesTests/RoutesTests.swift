@@ -1,9 +1,8 @@
 import XCTest
-import Socket
 import HTTPResponse
 import HTTPRequest
 import FileSystem
-@testable import Server
+@testable import Routes
 
 struct MockRoute: Route {
     var url: String
@@ -95,7 +94,7 @@ class RoutesTests: XCTestCase {
         mockValidRoute = MockRoute(url: "/valid",
                 methods: ["HEAD"],
                 requestHandler: { (_: String, _: Data) -> HTTPResponse in
-                    return HTTPResponse().setResponseCode(responseCode: ResponseCodes.OK)
+                    return CommonResponses.OKResponse
                 })
         routes.addRoute(route: mockValidRoute)
         super.setUp()
@@ -136,5 +135,24 @@ class RoutesTests: XCTestCase {
         let mockFileManager = MockIsFile()
         let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockFileManager)
         XCTAssertEqual(response.responseCode!.code, 200)
+    }
+
+    func testRedirect() {
+        let mockStartLine = MockRequestLine(httpMethod: "GET", target: "/old_route_location", httpVersion: "HTTP/1.1")
+        let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
+        let mockFileManager = MockIsRoute()
+        let mockRedirectRoute = MockRoute(url: "/old_route_location",
+                methods: ["GET"],
+                requestHandler: { (_: String, _: Data) -> HTTPResponse in
+                    return CommonResponses.FoundResponse(newLocation: "/new_location")
+                })
+        routes.addRoute(route: mockRedirectRoute)
+        let response = routes.routeRequest(request: mockHTTPParse, path: "/public", fileManager: mockFileManager)
+        if let httpMessage = String(data: response.generateResponse(), encoding: String.Encoding.utf8) {
+            XCTAssertEqual(response.responseCode!.code, 302)
+            XCTAssertTrue(httpMessage.contains("Location: /new_location"))
+        } else {
+            XCTFail()
+        }
     }
 }

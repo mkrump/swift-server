@@ -10,7 +10,9 @@ let package = Package(
             Target(name: "Main", dependencies: ["CommandLineParser", "Server"]),
             Target(name: "HTTPResponse"),
             Target(name: "FileSystem"),
-            Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem"]),
+            Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem"]),
+            Target(name: "Routes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem"]),
+            Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes", "AppRoutes"]),
             Target(name: "Templates")
         ],
         dependencies: [
