@@ -1,5 +1,15 @@
 import Foundation
 
+public func imATeapot() -> String {
+    let html = "<!DOCTYPE html \"><html>" +
+            "<title>418 </title>" +
+            "<body>" +
+            "<p>I'm a teapot</p>" +
+            "</body>" +
+            "</html>"
+    return html
+}
+
 public func dirListing(target: String, directories: [String]) -> String {
     let dirs = directories.map({ "<li> <a href=/" + $0 + ">" + $0 + "</a></li>" })
     let dirList = "<!DOCTYPE html \"><html>" +

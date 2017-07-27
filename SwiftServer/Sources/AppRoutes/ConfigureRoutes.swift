@@ -8,5 +8,7 @@ public func setupRoutes() -> Routes {
             methods: ["GET", "HEAD", "POST", "OPTIONS", "PUT"]))
     serverRoutes.addRoute(route: MethodOptions2(url: "/method_options2", methods: ["GET", "OPTIONS"]))
     serverRoutes.addRoute(route: RedirectRoute(url: "/redirect", methods: ["GET"]))
+    serverRoutes.addRoute(route: CoffeeRoute(url: "/coffee", methods: ["GET"]))
+    serverRoutes.addRoute(route: TeaRoute(url: "/tea", methods: ["GET"]))
     return serverRoutes
 }

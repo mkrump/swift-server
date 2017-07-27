@@ -5,4 +5,5 @@ public struct ResponseCodes {
     public static let BAD_REQUEST = (code: 400, message: "Bad Request")
     public static let MOVED_PERMANENTLY = (code: 301, message: "Moved Permanently")
     public static let FOUND = (code: 302, message: "Found")
+    public static let IM_A_TEAPOT = (code: 418, message: "I'm a teapot")
 }
