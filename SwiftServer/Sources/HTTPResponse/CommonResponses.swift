@@ -31,4 +31,11 @@ public struct CommonResponses {
                 .setResponseCode(responseCode: ResponseCodes.OK)
                 .addHeader(key: "Allow", value: methods.joined(separator: ","))
     }
+
+    public static func MethodNotAllowedResponse(methods: [String]) -> HTTPResponse {
+        return HTTPResponse()
+                .setVersion(version: 1.1)
+                .setResponseCode(responseCode: ResponseCodes.METHOD_NOT_ALLOWED)
+                .addHeader(key: "Allow", value: methods.joined(separator: ","))
+    }
 }

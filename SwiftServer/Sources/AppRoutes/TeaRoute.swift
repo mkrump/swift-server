@@ -4,12 +4,12 @@ import Templates
 import Routes
 
 class TeaRoute: Route {
-    var url: String
+    var name: String
     var methods: [String]
     var formData: Data
 
-    init(url: String, methods: [String]) {
-        self.url = url
+    init(name: String, methods: [String]) {
+        self.name = name
         self.methods = methods
         self.formData = Data()
     }

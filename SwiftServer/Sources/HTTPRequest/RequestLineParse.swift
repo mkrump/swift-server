@@ -15,7 +15,7 @@ public class RequestLine: RequestLineParse {
             throw ParsingErrors.BadRequest
         }
         httpMethod = requestLineArray[0]
-        target = requestLineArray[1]
+        target = requestLineArray[1].removingPercentEncoding!
         httpVersion = requestLineArray[2]
     }
 }

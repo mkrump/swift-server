@@ -55,7 +55,8 @@ public class Server {
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
-        let response = routes.routeRequest(request: request, path: self.directory, fileManager: fileManager)
+        let url = URL(path: self.directory, baseName: request.startLine.target)
+        let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         clientSocket.close()

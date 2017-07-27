@@ -12,45 +12,39 @@ public class Routes {
     }
 
     public func addRoute(route: Route) {
-        if routes.keys.contains(route.url) {
+        if routes.keys.contains(route.name) {
             return
         }
-        routes.updateValue(route, forKey: route.url)
+        routes.updateValue(route, forKey: route.name)
     }
 
     public func removeRoute(route: Route) {
-        routes.removeValue(forKey: route.url)
+        routes.removeValue(forKey: route.name)
     }
 
-    private func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String) -> Data {
-        if isDir.boolValue {
-            guard let dir = try? fileManager.contentsOfDirectory(atPath: url) else {
-                return Data()
-            }
-            return Data(dirListing(target: url, directories: dir).utf8)
-        } else if let file = fileManager.contents(atPath: url) {
-            return file
-        }
-        return Data()
-    }
-
-    private func isValidRoute(routes: [String: Route], target: String) -> Route? {
-        if let route = routes[target] {
+    private func isValidRoute(routes: [String: Route], url: URL, fileManager: FileSystem) -> Route? {
+        var isDir: ObjCBool = false
+        if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
+            return FileRoute(name: url.baseName, isDir: isDir, fileManager: fileManager, fullPath: url.fullName)
+        } else if let route = routes[url.baseName] {
             return route
         }
         return nil
     }
 
-    public func routeRequest(request: HTTPRequestParse, path: String, fileManager: FileSystem) -> HTTPResponse {
+    private func getResponse(route: inout Route, httpMethod: String, requestBody: String) -> HTTPResponse {
+        if route.methodAllowed(method: httpMethod) {
+            return route.handleRequest(method: httpMethod, data: Data(requestBody.utf8))
+        } else {
+            return CommonResponses.MethodNotAllowedResponse(methods: route.methods)
+        }
+    }
+
+    public func routeRequest(request: HTTPRequestParse, url: URL, fileManager: FileSystem) -> HTTPResponse {
         let startLine = request.startLine!
-        let data = request.messageBody ?? ""
-        let url = path + startLine.target
-        var isDir: ObjCBool = false
-        if fileManager.fileExists(atPath: url, isDirectory: &isDir) {
-            let message = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
-            return CommonResponses.OKResponse.setMessage(message: message)
-        } else if var route = isValidRoute(routes: routes, target: startLine.target) {
-            return route.handleRequest(method: startLine.httpMethod, data: Data(data.utf8))
+        let requestBody = request.messageBody ?? ""
+        if var route = isValidRoute(routes: routes, url: url, fileManager: fileManager) {
+            return getResponse(route: &route, httpMethod: startLine.httpMethod, requestBody: requestBody)
         } else {
             return CommonResponses.NotFoundResponse
         }
