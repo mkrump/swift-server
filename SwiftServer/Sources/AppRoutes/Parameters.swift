@@ -3,7 +3,7 @@ import HTTPResponse
 import Templates
 import Routes
 
-class MethodOptions: Route {
+class ParametersRoute: Route {
     var name: String
     var methods: [String]
 
@@ -13,9 +13,11 @@ class MethodOptions: Route {
     }
 
     func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
-        if method == "OPTIONS" {
-            return CommonResponses.OptionsResponse(methods: methods)
+        if let paramsUnwrapped = params {
+            let html = echoParams(params: paramsUnwrapped)
+            return CommonResponses.OKResponse.setMessage(message: Data(html.utf8))
+        } else {
+            return CommonResponses.OKResponse
         }
-        return CommonResponses.OKResponse
     }
 }

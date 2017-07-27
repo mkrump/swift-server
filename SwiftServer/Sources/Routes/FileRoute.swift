@@ -28,7 +28,7 @@ class FileRoute: Route {
         return Data()
     }
 
-    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
+    func handleRequest(method: String, data: Data = Data(), params: [String: String]? = nil) -> HTTPResponse {
         return CommonResponses.OKResponse.setMessage(message: routeContent)
     }
 }

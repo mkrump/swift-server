@@ -32,9 +32,9 @@ public class Routes {
         return nil
     }
 
-    private func getResponse(route: inout Route, httpMethod: String, requestBody: String) -> HTTPResponse {
+    private func getResponse(route: inout Route, httpMethod: String, requestBody: String, params: [String: String]? = nil) -> HTTPResponse {
         if route.methodAllowed(method: httpMethod) {
-            return route.handleRequest(method: httpMethod, data: Data(requestBody.utf8))
+            return route.handleRequest(method: httpMethod, data: Data(requestBody.utf8), params: params)
         } else {
             return CommonResponses.MethodNotAllowedResponse(methods: route.methods)
         }
@@ -43,8 +43,9 @@ public class Routes {
     public func routeRequest(request: HTTPRequestParse, url: URL, fileManager: FileSystem) -> HTTPResponse {
         let startLine = request.startLine!
         let requestBody = request.messageBody ?? ""
+        let params = request.startLine.params
         if var route = isValidRoute(routes: routes, url: url, fileManager: fileManager) {
-            return getResponse(route: &route, httpMethod: startLine.httpMethod, requestBody: requestBody)
+            return getResponse(route: &route, httpMethod: startLine.httpMethod, requestBody: requestBody, params: params)
         } else {
             return CommonResponses.NotFoundResponse
         }

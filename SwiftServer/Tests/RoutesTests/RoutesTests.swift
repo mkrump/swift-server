@@ -9,15 +9,16 @@ struct MockRoute: Route {
     var methods: [String] = []
     var requestHandler: (String, Data) -> HTTPResponse
 
-    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
+    func handleRequest(method: String, data: Data = Data(), params: [String: String]? = nil) -> HTTPResponse {
         return requestHandler(method, data)
     }
 }
 
 public class MockRequestLine: RequestLineParse {
-    public var httpMethod: String
-    public var target: String
-    public var httpVersion: String
+    public var httpMethod: String!
+    public var target: String!
+    public var params: [String: String]?
+    public var httpVersion: String!
 
     init(httpMethod: String, target: String, httpVersion: String) {
         self.httpMethod = httpMethod

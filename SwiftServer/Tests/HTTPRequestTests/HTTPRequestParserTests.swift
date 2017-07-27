@@ -66,12 +66,27 @@ class HTTPRequestParserTests: XCTestCase {
     }
 
     func testStartLineURLEncodedTarget() {
-        testStartLine = "GET %2Fsearch%3Fweird+characters%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D HTTP/1.1"
+        testStartLine = "GET /search?query=weird+characters%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D HTTP/1.1"
         guard let startLine = try? RequestLine(requestLine: testStartLine) else {
             XCTFail()
             return
         }
-        XCTAssertEqual(startLine.target, "/search?weird+characters!#$&\'()*+,/:;=?@[]")
+        XCTAssertEqual(startLine.target, "/search")
+        print(startLine.params!)
+        XCTAssertEqual(startLine.params!["query"], "weird+characters!#$&\'()*+,/:;=?@[]")
+        XCTAssertEqual(startLine.httpVersion, "HTTP/1.1")
+        XCTAssertEqual(startLine.httpMethod, "GET")
+    }
+
+    func testStartLineQueryParams() {
+        testStartLine = "GET /search?variable_1=Hello&variable_2=World HTTP/1.1"
+        guard let startLine = try? RequestLine(requestLine: testStartLine) else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(startLine.target, "/search")
+        XCTAssertEqual(startLine.params!["variable_1"], "Hello")
+        XCTAssertEqual(startLine.params!["variable_2"], "World")
         XCTAssertEqual(startLine.httpVersion, "HTTP/1.1")
         XCTAssertEqual(startLine.httpMethod, "GET")
     }

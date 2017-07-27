@@ -4,7 +4,7 @@ import HTTPResponse
 public protocol Route {
     var name: String { get }
     var methods: [String] { get }
-    mutating func handleRequest(method: String, data: Data) -> HTTPResponse
+    mutating func handleRequest(method: String, data: Data, params: [String: String]?) -> HTTPResponse
 }
 
 public extension Route {

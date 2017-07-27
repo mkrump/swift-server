@@ -12,7 +12,7 @@ class MethodOptions2: Route {
         self.methods = methods
     }
 
-    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
+    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
         if method == "OPTIONS" {
             return CommonResponses.OptionsResponse(methods: methods)
         }

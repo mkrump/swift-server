@@ -12,7 +12,7 @@ class RedirectRoute: Route {
         self.methods = methods
     }
 
-    func handleRequest(method: String, data: Data = Data()) -> HTTPResponse {
+    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
         return CommonResponses.FoundResponse(newLocation: "/")
     }
 }

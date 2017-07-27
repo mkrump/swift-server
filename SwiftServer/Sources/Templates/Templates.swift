@@ -1,5 +1,19 @@
 import Foundation
 
+public func echoParams(params: [String: String]) -> String {
+    let paramListItems = params.map { (key, value) in
+        "<li>" + key + " = " + value + "</li>"
+    }.joined(separator: "\n")
+
+    let html = "<!DOCTYPE html \"><html>" +
+            "<title>Echo </title>" +
+            "<body>" +
+            paramListItems +
+            "</body>" +
+            "</html>"
+    return html
+}
+
 public func imATeapot() -> String {
     let html = "<!DOCTYPE html \"><html>" +
             "<title>418 </title>" +

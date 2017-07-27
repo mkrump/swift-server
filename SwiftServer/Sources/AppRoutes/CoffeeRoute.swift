@@ -14,7 +14,7 @@ class CoffeeRoute: Route {
         self.formData = Data()
     }
 
-    func handleRequest(method: String, data: Data) -> HTTPResponse {
+    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
         switch method {
         case "GET": do {
             return HTTPResponse()
