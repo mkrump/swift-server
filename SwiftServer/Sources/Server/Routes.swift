@@ -1,4 +1,7 @@
+import Foundation
 import HTTPResponse
+import FileSystem
+import Templates
 
 public class Routes {
     var routes: [String: Route]
@@ -18,12 +21,27 @@ public class Routes {
         routes.removeValue(forKey: route.url)
     }
 
-    public func routeRequest(target: String, method: String) -> HTTPResponse {
-        if let route = routes[target] {
+    private func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String) -> Data {
+        if isDir.boolValue {
+            guard let dir = try? fileManager.contentsOfDirectory(atPath: url) else {
+                return Data()
+            }
+            return Data(dirListing(target: url, directories: dir).utf8)
+        } else if let file = fileManager.contents(atPath: url) {
+            return file
+        }
+        return Data()
+    }
+
+    public func routeRequest(target: String, method: String, path: String, fileManager: FileSystem) -> HTTPResponse {
+        var isDir: ObjCBool = false
+        let url = path + target
+        if fileManager.fileExists(atPath: url, isDirectory: &isDir) {
+            let message = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
+            return CommonResponses.OKResponse.setMessage(message: message)
+        } else if let route = routes[target] {
             return route.handleRequest(method: method)
         }
-        return HTTPResponse()
-                .setVersion(version: 1.1)
-                .setResponseCode(responseCode: ResponseCodes.NOT_FOUND)
+        return CommonResponses.NotFoundResponse
     }
 }

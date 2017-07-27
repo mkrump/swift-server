@@ -18,7 +18,7 @@ class Header {
 public class HTTPResponse {
     public var version: String?
     public var responseCode: (code: Int, message: String)?
-    public var message: String?
+    public var message: Data?
     var headers: [Header]
     var crlf: String
     var space: String
@@ -49,7 +49,7 @@ public class HTTPResponse {
         return self
     }
 
-    public func setMessage(message: String) -> HTTPResponse {
+    public func setMessage(message: Data) -> HTTPResponse {
         self.message = message
         return self
     }
@@ -71,13 +71,14 @@ public class HTTPResponse {
                 else {
             return Data()
         }
-        let message = self.message ?? ""
+        let message = self.message ?? Data()
         let headers = self.generateHeaders(headerArray: self.headers)
         let responseText = version + space + String(responseStatusCode) + space + responseStatusCodeMessage + crlf +
                 headers +
-                crlf +
-                message
-        return Data(responseText.utf8)
+                crlf
+        var headerData = Data(responseText.utf8)
+        headerData.append(message)
+        return headerData
     }
 
 }

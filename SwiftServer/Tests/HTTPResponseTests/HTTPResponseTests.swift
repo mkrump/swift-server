@@ -27,7 +27,7 @@ class HTTPResponseTests: XCTestCase {
         var httpResponse = HTTPResponse()
         httpResponse = httpResponse.setVersion(version: 1.1)
                 .setResponseCode(responseCode: ResponseCodes.OK)
-                .setMessage(message: "HI")
+                .setMessage(message: Data("HI".utf8))
         let expectedResponse = "HTTP/1.1 200 OK\r\n\r\nHI"
         if let actual = String(data: httpResponse.generateResponse(), encoding: .utf8) {
             XCTAssertEqual(actual, expectedResponse)
@@ -40,7 +40,7 @@ class HTTPResponseTests: XCTestCase {
                 .setResponseCode(responseCode: ResponseCodes.OK)
                 .addHeader(key: "Allow", value: "OPTIONS, GET, HEAD, POST")
         let expectedResponse = "HTTP/1.1 200 OK\r\n" +
-                               "Allow: OPTIONS, GET, HEAD, POST\r\n\r\n"
+                "Allow: OPTIONS, GET, HEAD, POST\r\n\r\n"
         if let actual = String(data: httpResponse.generateResponse(), encoding: .utf8) {
             XCTAssertEqual(actual, expectedResponse)
         }

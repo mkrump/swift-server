@@ -1,3 +1,4 @@
+import Foundation
 import HTTPResponse
 
 public protocol Route {
@@ -21,7 +22,7 @@ struct RootRoute: Route {
         return HTTPResponse()
                 .setVersion(version: 1.1)
                 .setResponseCode(responseCode: ResponseCodes.OK)
-                .setMessage(message: "Hello!")
+                .setMessage(message: Data("Hello!".utf8))
     }
 
 }

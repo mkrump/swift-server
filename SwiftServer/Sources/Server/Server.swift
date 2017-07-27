@@ -2,6 +2,7 @@ import Foundation
 import Socket
 import HTTPResponse
 import HTTPRequest
+import FileSystem
 
 enum ServerErrors: Error {
     case socketCreationFailed
@@ -14,16 +15,15 @@ public class Server {
     let hostName: String
     var serverRunning: Bool
     var routes: Routes!
+    var fileManager: FileSystem
     public var listener: Socket
-    let badRequestResponse = HTTPResponse().setVersion(version: 1.1)
-            .setResponseCode(responseCode: ResponseCodes.BAD_REQUEST)
-            .generateResponse()
 
     public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1") throws {
         self.portNumber = portNumber
         self.directory = directory
         self.serverRunning = false
         self.hostName = hostName
+        self.fileManager = ServerFileManager()
         do {
             self.listener = try Socket.create()
             try listener.listen(on: portNumber)
@@ -39,7 +39,7 @@ public class Server {
             let clientSocket = try listener.acceptClientConnection()
             guard let request = try? readClientSocket(clientSocket: clientSocket),
                   let parsedRequest = try? parseRequest(request: request) else {
-                try clientSocket.write(from: badRequestResponse)
+                try clientSocket.write(from: CommonResponses.badRequestResponse.generateResponse())
                 clientSocket.close()
                 continue
             }
@@ -53,7 +53,8 @@ public class Server {
     }
 
     private func respond(startLine: RequestLine, clientSocket: Socket) throws {
-        let response = routes.routeRequest(target: startLine.target, method: startLine.httpMethod)
+        let response = routes.routeRequest(target: startLine.target, method: startLine.httpMethod,
+                path: self.directory, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         clientSocket.close()
