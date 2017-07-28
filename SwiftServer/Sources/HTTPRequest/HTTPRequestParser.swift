@@ -19,7 +19,7 @@ public class HTTPParsedRequest: HTTPRequestParse {
     public init(request: String) throws {
         let messageParts = try parseHTTPRequest(request: request)
         messageBody = messageParts.messageBody ?? nil
-        let headerAndRequestLit ne = parseHeaderAndRequestLine(
+        let headerAndRequestLine = parseHeaderAndRequestLine(
                 headerAndMessageRequestLine: messageParts.headerAndRequestLine)
         headers = headerAndRequestLine.headers ?? nil
         startLine = try parseRequestLine(requestLine: headerAndRequestLine.requestLine)
