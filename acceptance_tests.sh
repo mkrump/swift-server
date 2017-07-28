@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ ! -d $DIR/cob_spec ]; then
     git clone git@github.com:8thlight/cob_spec.git cob_spec

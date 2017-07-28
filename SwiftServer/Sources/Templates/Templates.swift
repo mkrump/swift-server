@@ -1,10 +1,10 @@
 import Foundation
 
 public func echoParams(params: [String: String]) -> String {
-    let paramListItems = params.map { (key, value) in
+    let paramListArray = params.map { (key, value) in
         "<li>" + key + " = " + value + "</li>"
-    }.joined(separator: "\n")
-
+    }
+    let paramListItems = paramListArray.joined(separator: "\n")
     let html = "<!DOCTYPE html \"><html>" +
             "<title>Echo </title>" +
             "<body>" +
