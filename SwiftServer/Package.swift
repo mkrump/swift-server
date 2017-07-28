@@ -10,12 +10,10 @@ let package = Package(
             Target(name: "Main", dependencies: ["CommandLineParser", "Server"]),
             Target(name: "HTTPResponse"),
             Target(name: "FileSystem"),
-            Target(name: "AppRoutes",
-                    dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"]),
             Target(name: "Routes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem"]),
-            Target(name: "Server",
-                    dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes", "AppRoutes"]),
-            Target(name: "Templates")
+            Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes", "AppRoutes"]),
+            Target(name: "Templates"),
+            Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"])
         ],
         dependencies: [
             .Package(url: "https://github.com/IBM-Swift/BlueSocket", majorVersion: 0, minor: 12),

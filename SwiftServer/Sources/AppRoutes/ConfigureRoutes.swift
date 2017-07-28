@@ -1,3 +1,5 @@
+import Foundation
+import HTTPResponse
 import Routes
 
 public func setupRoutes() -> Routes {
@@ -7,8 +9,11 @@ public func setupRoutes() -> Routes {
     serverRoutes.addRoute(route: MethodOptions(name: "/method_options",
             methods: ["GET", "HEAD", "POST", "OPTIONS", "PUT"]))
     serverRoutes.addRoute(route: MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]))
-    serverRoutes.addRoute(route: RedirectRoute(name: "/redirect", methods: ["GET"]))
     serverRoutes.addRoute(route: CoffeeRoute(name: "/coffee", methods: ["GET"]))
     serverRoutes.addRoute(route: TeaRoute(name: "/tea", methods: ["GET"]))
+    serverRoutes.addRoute(route: RedirectRoute(name: "/redirect", newRoute: "/"))
     return serverRoutes
 }
+
+//public func redirects() -> Routes {
+//}
