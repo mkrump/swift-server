@@ -8,6 +8,7 @@ if [ ! -d $DIR/cob_spec ]; then
 fi
 cd $DIR/SwiftServer
 swift build
+swift pacakge clean
 cp $DIR/SwiftServer/.build/debug/Main $DIR/cob_spec/
 cp $DIR/cob_spec_config.txt $DIR/cob_spec/FitNesseRoot/HttpTestSuite/content.txt
 cd $DIR/cob_spec
