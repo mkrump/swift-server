@@ -14,4 +14,12 @@ public extension Route {
         }
         return false
     }
+
+    func setContentType(contentType: String?) -> String {
+        if let routeContentType = contentType {
+            return routeContentType
+        } else {
+            return inferContentType(fileName: name)
+        }
+    }
 }

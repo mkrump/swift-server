@@ -141,7 +141,12 @@ class RoutesTests: XCTestCase {
         let mockFileManager = MockIsFile()
         let url = URL(path: "/public", baseName: mockStartLine.target)
         let response = routes.routeRequest(request: mockHTTPParse, url: url, fileManager: mockFileManager)
-        XCTAssertEqual(response.responseCode!.code, 200)
+        if let httpMessage = String(data: response.generateResponse(), encoding: String.Encoding.utf8) {
+            XCTAssertEqual(response.responseCode!.code, 200)
+            XCTAssertTrue(httpMessage.contains("Content-Type: text/plain"))
+        } else {
+            XCTFail()
+        }
     }
 
     func testRedirect() {
