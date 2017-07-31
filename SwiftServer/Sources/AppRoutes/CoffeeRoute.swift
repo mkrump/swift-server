@@ -1,5 +1,6 @@
 import Foundation
 import HTTPResponse
+import HTTPRequest
 import Templates
 import Routes
 
@@ -14,7 +15,7 @@ class CoffeeRoute: Route {
         self.formData = Data()
     }
 
-    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
             return HTTPResponse()
                     .setVersion(version: 1.1)
                     .setResponseCode(responseCode: ResponseCodes.IM_A_TEAPOT)

@@ -1,5 +1,6 @@
 import Foundation
 import HTTPResponse
+import HTTPRequest
 import Templates
 
 public class RedirectRoute: Route {
@@ -13,7 +14,7 @@ public class RedirectRoute: Route {
         self.newRoute = newRoute
     }
 
-    public func handleRequest(method: String, data: Data = Data(), params: [String: String]? = nil) -> HTTPResponse {
+    public func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         return CommonResponses.FoundResponse(newLocation: newRoute)
     }
 }

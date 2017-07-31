@@ -7,7 +7,7 @@ if [ ! -d $DIR/cob_spec ]; then
     mvn package
 fi
 cd $DIR/SwiftServer
-swift package clean
+#swift package clean
 swift build
 cp $DIR/SwiftServer/.build/debug/Main $DIR/cob_spec/
 cp $DIR/cob_spec_config.txt $DIR/cob_spec/FitNesseRoot/HttpTestSuite/content.txt

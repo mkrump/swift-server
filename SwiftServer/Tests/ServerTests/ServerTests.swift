@@ -28,20 +28,4 @@ class SwiftServerTests: XCTestCase {
         super.tearDown()
         server.stop()
     }
-
-//    func testCanConnect() {
-//        do {
-//            let clientSocket = try Socket.create()
-//            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
-//            XCTAssertTrue(clientSocket.isConnected)
-//        } catch {
-//            XCTFail()
-//        }
-//    }
-
-//    func testCanStop() {
-//        server.stop()
-//        XCTAssertFalse(server.listener.isListening)
-//        XCTAssertFalse(server.listener.isConnected)
-//    }
 }

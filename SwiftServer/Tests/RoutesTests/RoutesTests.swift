@@ -1,5 +1,6 @@
 import XCTest
 import HTTPResponse
+import HTTPRequest
 import FileSystem
 @testable import Routes
 
@@ -16,13 +17,13 @@ class RoutesTests: XCTestCase {
         routes = Routes()
         mockValidRoute = MockRoute(name: "/valid",
                 methods: ["HEAD", "GET"],
-                requestHandler: { (_: String, _: Data) -> HTTPResponse in
-                    return CommonResponses.OKResponse
+                requestHandler: { (_: HTTPRequestParse) -> HTTPResponse in
+                    return CommonResponses.OKResponse()
                 })
         routes.addRoute(route: mockValidRoute)
         mockRedirectRoute = MockRoute(name: "/old_route_location",
                 methods: ["GET"],
-                requestHandler: { (_: String, _: Data) -> HTTPResponse in
+                requestHandler: { (_: HTTPRequestParse) -> HTTPResponse in
                     return CommonResponses.FoundResponse(newLocation: "/new_location")
                 })
         routes.addRoute(route: mockRedirectRoute)
