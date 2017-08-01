@@ -15,12 +15,6 @@ class TeaRoute: Route {
     }
 
     func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
-        switch method {
-        case "GET": do {
             return CommonResponses.OKResponse
         }
-        default:
-            return CommonResponses.NotFoundResponse
-        }
-    }
 }

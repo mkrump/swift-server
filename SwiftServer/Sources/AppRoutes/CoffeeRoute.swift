@@ -15,15 +15,9 @@ class CoffeeRoute: Route {
     }
 
     func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
-        switch method {
-        case "GET": do {
             return HTTPResponse()
                     .setVersion(version: 1.1)
                     .setResponseCode(responseCode: ResponseCodes.IM_A_TEAPOT)
                     .setMessage(message: Data(imATeapot().utf8))
         }
-        default:
-            return CommonResponses.NotFoundResponse
-        }
-    }
 }
