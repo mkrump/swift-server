@@ -16,6 +16,7 @@ let package = Package(
             Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"])
         ],
         dependencies: [
+            .Package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", majorVersion: 0),
             .Package(url: "https://github.com/IBM-Swift/BlueSocket", majorVersion: 0, minor: 12),
         ]
 )
