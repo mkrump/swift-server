@@ -4,12 +4,18 @@ import HTTPResponse
 import FileSystem
 import Routes
 
-struct MockRoute: Route {
-    var name: String
-    var methods: [String] = []
-    var requestHandler: (HTTPRequestParse) -> HTTPResponse
+public struct MockRoute: Route {
+    public var name: String
+    public var methods: [String] = []
+    public var requestHandler: (HTTPRequestParse) -> HTTPResponse
 
-    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+    public init(name: String, methods: [String], requestHandler: @escaping (HTTPRequestParse) -> HTTPResponse) {
+        self.name = name
+        self.methods = methods
+        self.requestHandler = requestHandler
+    }
+
+    public func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         return requestHandler(request)
     }
 }
@@ -20,7 +26,7 @@ public class MockRequestLine: RequestLineParse {
     public var params: [String: String]?
     public var httpVersion: String!
 
-    init(httpMethod: String, target: String, httpVersion: String) {
+    public init(httpMethod: String, target: String, httpVersion: String) {
         self.httpMethod = httpMethod
         self.target = target
         self.httpVersion = httpVersion
@@ -31,7 +37,7 @@ public class MockHeaders: HeaderParse {
     public var rawHeaders: String?
     public var headerDict: [String: String]?
 
-    init(rawHeaders: String, headerDict: [String: String]) {
+    public init(rawHeaders: String, headerDict: [String: String]) {
         self.rawHeaders = rawHeaders
         self.headerDict = headerDict
     }
@@ -43,7 +49,7 @@ public class MockHTTParsedRequest: HTTPRequestParse {
     public var headerDict: [String: String]?
     public var messageBody: String?
 
-    init(startLine: RequestLineParse, headers: HeaderParse? = nil,
+    public init(startLine: RequestLineParse, headers: HeaderParse? = nil,
          headerDict: [String: String]? = nil, messageBody: String? = nil) {
         self.headers = headers
         self.headerDict = headerDict
@@ -54,6 +60,9 @@ public class MockHTTParsedRequest: HTTPRequestParse {
 }
 
 public class MockIsRoute: FileSystem {
+    public init() {
+    }
+
     public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
         if let isDir = isDirectory {
             isDir.pointee = false
@@ -79,6 +88,8 @@ public class MockIsRoute: FileSystem {
 }
 
 public class MockIsFile: MockIsRoute {
+    public override init() {
+    }
 
     override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
         if let isDir = isDirectory {
@@ -97,6 +108,9 @@ public class MockIsFile: MockIsRoute {
 }
 
 public class MockIsDir: MockIsRoute {
+    public override init() {
+    }
+
     override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
         if let isDir = isDirectory {
             isDir.pointee = true
