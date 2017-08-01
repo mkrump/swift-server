@@ -2,6 +2,7 @@ import XCTest
 import HTTPResponse
 import HTTPRequest
 import FileSystem
+import MocksTests
 @testable import Routes
 
 class RoutesTests: XCTestCase {
@@ -39,7 +40,7 @@ class RoutesTests: XCTestCase {
         let mockStartLine = MockRequestLine(httpMethod: httpMethod, target: target, httpVersion: httpVersion!)
         let mockHTTPParse = MockHTTParsedRequest(startLine: mockStartLine)
         let mockNoDirFileManager = mockFileSystem
-        let url = URL(path: path, baseName: mockStartLine.target)
+        let url = simpleURL(path: path, baseName: mockStartLine.target)
         return routes.routeRequest(request: mockHTTPParse, url: url, fileManager: mockNoDirFileManager)
     }
 

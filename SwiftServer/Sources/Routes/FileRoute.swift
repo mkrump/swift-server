@@ -14,7 +14,7 @@ class FileRoute: Route {
 
     init(name: String, isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
         self.name = name
-        self.methods = ["GET", "HEAD"]
+        self.methods = ["GET", "HEAD", "PATCH"]
         self.isDir = isDir
         self.fileManager = fileManager
         self.url = fullPath
@@ -77,8 +77,15 @@ class FileRoute: Route {
                         .addHeader(key: "Content-Type", value: self.mimeType)
                         .setMessage(message: content)
             } else {
-                return CommonResponses.DefaultHeaders().setResponseCode(responseCode: ResponseCodes.RANGE_NOT_SATISFIABLE)
+                return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.RANGE_NOT_SATISFIABLE)
             }
+        }
+        if method == "PATCH" {
+//            TODO This shouldn't pass the PATCH cob_spec test since doesn't check eTag
+            var data = Data(request.messageBody!.utf8)
+            var fileurl = URL(fileURLWithPath: self.url)
+            try? data.write(to: fileurl)
+            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.NO_CONTENT)
         }
 
         let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)

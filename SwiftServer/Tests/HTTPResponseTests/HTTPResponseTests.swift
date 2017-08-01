@@ -2,8 +2,6 @@ import XCTest
 import Socket
 @testable import HTTPResponse
 
-
-
 class HTTPResponseTests: XCTestCase {
     override func setUp() {
         super.setUp()

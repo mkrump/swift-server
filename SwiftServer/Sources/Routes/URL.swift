@@ -1,4 +1,4 @@
-public struct URL {
+public struct simpleURL {
     let path: String
     let baseName: String
     let fullName: String
