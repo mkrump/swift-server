@@ -1,24 +1,34 @@
 import Foundation
 import HTTPResponse
 import HTTPRequest
+import FileSystem
 import Templates
 import Routes
 
-class CoffeeRoute: Route {
-    var name: String
-    var methods: [String]
-    var formData: Data
-
-    init(name: String, methods: [String]) {
-        self.name = name
-        self.methods = methods
-        self.formData = Data()
+class PatchRoute: FileRoute {
+    init(name: String, fullPath: String) {
+        super.init(name: name, isDir: ObjCBool(false), fileManager: ServerFileManager(), fullPath: fullPath)
     }
 
-    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
-            return HTTPResponse()
-                    .setVersion(version: 1.1)
-                    .setResponseCode(responseCode: ResponseCodes.IM_A_TEAPOT)
-                    .setMessage(message: Data(imATeapot().utf8))
+    override func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+        let method = request.requestLine.httpMethod
+        let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
+        if let currentEtag = generateEtag(content: content) {
+            eTag = currentEtag
         }
+        if !eTagValid(currentEtag: eTag, headers: request.headers) {
+            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.PRECONDITION_FAILED)
+        }
+        if method == "PATCH" {
+            if let patchData = request.messageBody {
+                let data = Data(patchData.utf8)
+                let fileURL = URL(fileURLWithPath: self.url)
+                try? data.write(to: fileURL)
+            }
+            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.NO_CONTENT)
+        }
+        return CommonResponses.OKResponse()
+                .addHeader(key: "Content-Type", value: self.mimeType)
+                .setMessage(message: content)
+    }
 }

@@ -4,25 +4,25 @@ import HTTPRequest
 import Templates
 import FileSystem
 
-class FileRoute: Route {
-    var name: String
-    var methods: [String]
-    var isDir: ObjCBool
-    var eTag: String?
-    var mimeType: String!
-    var url: String!
-    var fileManager: FileSystem
+open class FileRoute: Route {
+    public var name: String
+    public var methods: [String]
+    public var isDir: ObjCBool
+    public var eTag: String?
+    public var mimeType: String!
+    public var url: String!
+    public var fileManager: FileSystem
 
-    init(name: String, isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
+    public init(name: String, isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
         self.name = name
-        self.methods = ["GET", "HEAD", "PATCH"]
+        self.methods = ["GET", "HEAD"]
         self.isDir = isDir
         self.fileManager = fileManager
         self.url = fullPath
         self.mimeType = setContentType(contentType: mimeType)
     }
 
-    private func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String, range: Range<Int> = 0..<0) -> Data {
+    public func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String, range: Range<Int> = 0..<0) -> Data {
         if isDir.boolValue {
             guard let dir = try? fileManager.contentsOfDirectory(atPath: url) else {
                 return Data()
@@ -66,15 +66,10 @@ class FileRoute: Route {
         return nil
     }
 
-    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+    open func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         let method = request.requestLine.httpMethod
         let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
-        if let currentEtag = generateEtag(content: content) {
-            eTag = currentEtag
-        }
-        if !eTagValid(currentEtag: eTag, headers: request.headers) {
-            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.PRECONDITION_FAILED)
-        }
+
         if method == "OPTIONS" {
             return CommonResponses.OptionsResponse(methods: methods)
         }
@@ -87,15 +82,6 @@ class FileRoute: Route {
             } else {
                 return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.RANGE_NOT_SATISFIABLE)
             }
-        }
-        if method == "PATCH" {
-            if let patchData = request.messageBody {
-
-                let data = Data(patchData.utf8)
-                let fileURL = URL(fileURLWithPath: self.url)
-                try? data.write(to: fileURL)
-            }
-            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.NO_CONTENT)
         }
 
         return CommonResponses.OKResponse()
