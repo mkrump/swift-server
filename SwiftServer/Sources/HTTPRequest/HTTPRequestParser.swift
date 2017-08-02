@@ -5,15 +5,15 @@ enum ParsingErrors: Error {
 }
 
 public protocol HTTPRequestParse {
-    var startLine: RequestLineParse! { get }
-    var headers: String? { get }
+    var requestLine: RequestLineParse! { get }
+    var headers: HeaderParse? {get}
     var messageBody: String? { get }
 
 }
 
 public class HTTPParsedRequest: HTTPRequestParse {
-    public var startLine: RequestLineParse!
-    public var headers: String?
+    public var requestLine: RequestLineParse!
+    public var headers: HeaderParse?
     public var messageBody: String?
 
     public init(request: String) throws {
@@ -21,8 +21,8 @@ public class HTTPParsedRequest: HTTPRequestParse {
         messageBody = messageParts.messageBody ?? nil
         let headerAndRequestLine = parseHeaderAndRequestLine(
                 headerAndMessageRequestLine: messageParts.headerAndRequestLine)
-        headers = headerAndRequestLine.headers ?? nil
-        startLine = try parseRequestLine(requestLine: headerAndRequestLine.requestLine)
+        headers = HTTPHeader(headerLine: headerAndRequestLine.headers)
+        requestLine = try parseRequestLine(requestLine: headerAndRequestLine.requestLine)
     }
 
     func parseRequestLine(requestLine: String) throws -> RequestLineParse {
@@ -52,4 +52,5 @@ public class HTTPParsedRequest: HTTPRequestParse {
         }
         return (requestLine: headerArray[0], headers: nil)
     }
+
 }

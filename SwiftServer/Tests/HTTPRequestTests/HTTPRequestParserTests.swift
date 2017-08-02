@@ -26,12 +26,18 @@ class HTTPRequestParserTests: XCTestCase {
 
     func testHTTPParserTopLevelParse() {
         if let httpRequestParser = try? HTTPParsedRequest(request: testMessage),
-           let startLine = httpRequestParser.startLine,
+           let startLine = httpRequestParser.requestLine,
            let headers = httpRequestParser.headers,
+           let headersDict = httpRequestParser.headers!.headerDict,
            let messageBody = httpRequestParser.messageBody {
             XCTAssertNotNil(startLine)
-            XCTAssertEqual(headers, testHeaders)
+            XCTAssertEqual(headers.rawHeaders, testHeaders)
             XCTAssertEqual(messageBody, testMessageBody)
+            XCTAssertEqual(headersDict, ["Content-Length": "11",
+                                         "Host": "localhost:5000",
+                                         "Connection": "Keep-Alive",
+                                         "User-Agent": "Apache-HttpClient/4.3.5 (java 1.5)",
+                                         "Accept-Encoding": "gzip,deflate"])
         } else {
             XCTFail()
             return
@@ -44,7 +50,7 @@ class HTTPRequestParserTests: XCTestCase {
             XCTFail()
             return
         }
-        XCTAssertEqual(headers, testHeaders)
+        XCTAssertEqual(headers.rawHeaders, testHeaders)
     }
 
     func testBadRequest() {
@@ -72,7 +78,6 @@ class HTTPRequestParserTests: XCTestCase {
             return
         }
         XCTAssertEqual(startLine.target, "/search")
-        print(startLine.params!)
         XCTAssertEqual(startLine.params!["query"], "weird+characters!#$&\'()*+,/:;=?@[]")
         XCTAssertEqual(startLine.httpVersion, "HTTP/1.1")
         XCTAssertEqual(startLine.httpMethod, "GET")
@@ -91,4 +96,15 @@ class HTTPRequestParserTests: XCTestCase {
         XCTAssertEqual(startLine.httpMethod, "GET")
     }
 
+    func testHeaderParse() {
+        let parsedHeaders = HTTPHeader(headerLine: testHeaders)
+        if let rawHeaders = parsedHeaders.rawHeaders,
+           let headerDict = parsedHeaders.headerDict {
+            XCTAssertEqual(rawHeaders, testHeaders)
+            XCTAssertEqual(headerDict, ["Content-Length": "11",
+                                        "Host": "localhost:5000", "Connection":
+                                        "Keep-Alive", "User-Agent": "Apache-HttpClient/4.3.5 (java 1.5)",
+                                        "Accept-Encoding": "gzip,deflate"])
+        }
+    }
 }

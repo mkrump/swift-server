@@ -32,22 +32,19 @@ public class Routes {
         return nil
     }
 
-    private func getResponse(route: inout Route, httpMethod: String, requestBody: String, params: [String: String]? = nil) -> HTTPResponse {
-        if route.methodAllowed(method: httpMethod) {
-            return route.handleRequest(method: httpMethod, data: Data(requestBody.utf8), params: params)
+    private func getResponse(route: inout Route, request: HTTPRequestParse) -> HTTPResponse {
+        if route.methodAllowed(method: request.requestLine.httpMethod) {
+            return route.handleRequest(request: request)
         } else {
             return CommonResponses.MethodNotAllowedResponse(methods: route.methods)
         }
     }
 
     public func routeRequest(request: HTTPRequestParse, url: URL, fileManager: FileSystem) -> HTTPResponse {
-        let startLine = request.startLine!
-        let requestBody = request.messageBody ?? ""
-        let params = request.startLine.params
         if var route = isValidRoute(routes: routes, url: url, fileManager: fileManager) {
-            return getResponse(route: &route, httpMethod: startLine.httpMethod, requestBody: requestBody, params: params)
+            return getResponse(route: &route, request: request)
         } else {
-            return CommonResponses.NotFoundResponse
+            return CommonResponses.NotFoundResponse()
         }
     }
 }

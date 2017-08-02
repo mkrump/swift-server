@@ -7,10 +7,10 @@ import Routes
 struct MockRoute: Route {
     var name: String
     var methods: [String] = []
-    var requestHandler: (String, Data) -> HTTPResponse
+    var requestHandler: (HTTPRequestParse) -> HTTPResponse
 
-    func handleRequest(method: String, data: Data = Data(), params: [String: String]? = nil) -> HTTPResponse {
-        return requestHandler(method, data)
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+        return requestHandler(request)
     }
 }
 
@@ -27,15 +27,28 @@ public class MockRequestLine: RequestLineParse {
     }
 }
 
+public class MockHeaders: HeaderParse {
+    public var rawHeaders: String?
+    public var headerDict: [String: String]?
+
+    init(rawHeaders: String, headerDict: [String: String]) {
+        self.rawHeaders = rawHeaders
+        self.headerDict = headerDict
+    }
+}
+
 public class MockHTTParsedRequest: HTTPRequestParse {
-    public var startLine: RequestLineParse!
-    public var headers: String?
+    public var requestLine: RequestLineParse!
+    public var headers: HeaderParse?
+    public var headerDict: [String: String]?
     public var messageBody: String?
 
-    init(startLine: RequestLineParse, headers: String? = nil, messageBody: String? = nil) {
+    init(startLine: RequestLineParse, headers: HeaderParse? = nil,
+         headerDict: [String: String]? = nil, messageBody: String? = nil) {
         self.headers = headers
+        self.headerDict = headerDict
         self.messageBody = messageBody
-        self.startLine = startLine
+        self.requestLine = startLine
     }
 
 }
@@ -53,6 +66,14 @@ public class MockIsRoute: FileSystem {
     }
 
     public func contents(atPath path: String) -> Data? {
+        return nil
+    }
+
+    public func partialContents(atPath path: String, range: Range<Int>) -> Data? {
+        return nil
+    }
+
+    public func fileSize(atPath path: String) -> Int? {
         return nil
     }
 }
@@ -83,4 +104,3 @@ public class MockIsDir: MockIsRoute {
         return true
     }
 }
-

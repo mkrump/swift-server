@@ -1,5 +1,6 @@
 import Foundation
 import HTTPResponse
+import HTTPRequest
 import Templates
 import Routes
 
@@ -14,7 +15,7 @@ class TeaRoute: Route {
         self.formData = Data()
     }
 
-    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
-            return CommonResponses.OKResponse
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+            return CommonResponses.OKResponse()
         }
 }

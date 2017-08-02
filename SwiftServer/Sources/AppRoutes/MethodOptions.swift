@@ -1,5 +1,6 @@
 import Foundation
 import HTTPResponse
+import HTTPRequest
 import Templates
 import Routes
 
@@ -12,10 +13,11 @@ class MethodOptions: Route {
         self.methods = methods
     }
 
-    func handleRequest(method: String, data: Data, params: [String: String]? = nil) -> HTTPResponse {
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+        let method = request.requestLine.httpMethod
         if method == "OPTIONS" {
             return CommonResponses.OptionsResponse(methods: methods)
         }
-        return CommonResponses.OKResponse
+        return CommonResponses.OKResponse()
     }
 }

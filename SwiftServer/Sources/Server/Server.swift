@@ -41,7 +41,7 @@ public class Server {
             let clientSocket = try listener.acceptClientConnection()
             guard let request = try? readClientSocket(clientSocket: clientSocket),
                   let parsedRequest = try? parseRequest(request: request) else {
-                try clientSocket.write(from: CommonResponses.badRequestResponse.generateResponse())
+                try clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
                 clientSocket.close()
                 continue
             }
@@ -55,7 +55,7 @@ public class Server {
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
-        let url = URL(path: self.directory, baseName: request.startLine.target)
+        let url = URL(path: self.directory, baseName: request.requestLine.target)
         let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)

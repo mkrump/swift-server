@@ -15,5 +15,3 @@ public func setupRoutes() -> Routes {
     return serverRoutes
 }
 
-//public func redirects() -> Routes {
-//}

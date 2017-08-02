@@ -1,10 +1,11 @@
 import Foundation
+import HTTPRequest
 import HTTPResponse
 
 public protocol Route {
     var name: String { get }
     var methods: [String] { get }
-    mutating func handleRequest(method: String, data: Data, params: [String: String]?) -> HTTPResponse
+    mutating func handleRequest(request: HTTPRequestParse) -> HTTPResponse
 }
 
 public extension Route {
