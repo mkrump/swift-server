@@ -1,5 +1,4 @@
 public struct CommonResponses {
-//    TODO paramaterize this
     public static func DefaultHeaders(responseCode: (code: Int, message: String)) -> HTTPResponse {
         return HTTPResponse()
                 .setVersion(version: 1.1)

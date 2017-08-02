@@ -16,9 +16,8 @@ class CoffeeRoute: Route {
     }
 
     func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
-            return HTTPResponse()
-                    .setVersion(version: 1.1)
-                    .setResponseCode(responseCode: ResponseCodes.IM_A_TEAPOT)
-                    .setMessage(message: Data(imATeapot().utf8))
-        }
+        return CommonResponses
+                .DefaultHeaders(responseCode: ResponseCodes.IM_A_TEAPOT)
+                .setMessage(message: Data(imATeapot().utf8))
+    }
 }

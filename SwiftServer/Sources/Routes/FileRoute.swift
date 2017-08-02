@@ -25,9 +25,6 @@ open class FileRoute: Route {
     open func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         let method = request.requestLine.httpMethod
         let content = fileToMessage(isDir: isDir, fileManager: fileManager, fullPath: fullPath)
-        if method == "OPTIONS" {
-            return CommonResponses.OptionsResponse(methods: methods)
-        }
         if let range = isRangeRequest(headers: request.headers) {
             let fileSize = fileManager.fileSize(atPath: fullPath)
             if let byteRange = parseRange(byteRange: range, fileSize: fileSize) {
@@ -40,6 +37,9 @@ open class FileRoute: Route {
             }
         }
 
+        if method == "OPTIONS" {
+            return CommonResponses.OptionsResponse(methods: methods)
+        }
         return CommonResponses.OKResponse()
                 .addHeader(key: "Content-Type", value: self.mimeType)
                 .setMessage(message: content)
