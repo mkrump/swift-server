@@ -1,7 +1,7 @@
 public struct simpleURL {
-    let path: String
-    let baseName: String
-    let fullName: String
+    public let path: String
+    public let baseName: String
+    public let fullName: String
 
     public init(path: String, baseName: String) {
         self.path = path

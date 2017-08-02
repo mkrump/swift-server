@@ -33,16 +33,6 @@ public class MockRequestLine: RequestLineParse {
     }
 }
 
-public class MockHeaders: HeaderParse {
-    public var rawHeaders: String?
-    public var headerDict: [String: String]?
-
-    public init(rawHeaders: String, headerDict: [String: String]) {
-        self.rawHeaders = rawHeaders
-        self.headerDict = headerDict
-    }
-}
-
 public class MockHTTParsedRequest: HTTPRequestParse {
     public var requestLine: RequestLineParse!
     public var headers: HeaderParse?

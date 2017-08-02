@@ -14,7 +14,6 @@ let package = Package(
             Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "FileSystem", "Routes", "AppRoutes"]),
             Target(name: "Templates"),
             Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"]),
-            Target(name: "MocksTests", dependencies: ["HTTPResponse", "HTTPRequest", "FileSystem", "Routes"])
         ],
         dependencies: [
             .Package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", majorVersion: 0),

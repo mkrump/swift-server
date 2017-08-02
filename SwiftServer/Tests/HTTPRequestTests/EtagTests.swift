@@ -1,6 +1,5 @@
 import Foundation
 import XCTest
-import MocksTests
 @testable import HTTPRequest
 
 class EtagTests: XCTestCase {

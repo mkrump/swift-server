@@ -5,12 +5,25 @@ import FileSystem
 import Templates
 import Routes
 
-class PatchRoute: FileRoute {
-    init(name: String, methods: [String], path: String, fileManager: FileSystem) {
-        super.init(url: simpleURL(path: path, baseName: name), methods: methods, isDir: ObjCBool(false), fileManager: fileManager)
+class PatchRoute: Route {
+    public var name: String
+    public var methods: [String]
+    public var isDir: ObjCBool
+    public var eTag: String?
+    public var mimeType: String!
+    public var fullPath: String!
+    public var fileManager: FileSystem
+
+    public init(url: simpleURL, methods: [String], fileManager: FileSystem, mimeType: String? = nil) {
+        self.name = url.baseName
+        self.methods = methods
+        self.isDir = ObjCBool(false)
+        self.fileManager = fileManager
+        self.fullPath = url.fullName
+        self.mimeType = setContentType(contentType: mimeType)
     }
 
-    override func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         let method = request.requestLine.httpMethod
         let content = fileToMessage(isDir: isDir, fileManager: fileManager, fullPath: fullPath)
         if let currentEtag = generateEtag(content: content) {

@@ -12,7 +12,7 @@ func createVirtualRoutes(path: String, fileManager: FileSystem) -> [Route] {
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
         RedirectRoute(name: "/redirect", newRoute: "/"),
-        PatchRoute(name: "/patch-content.txt", methods: ["GET", "PATCH"], path: path, fileManager: fileManager)
+        PatchRoute(url: simpleURL(path: path, baseName: "/patch-content.txt"), methods: ["GET", "PATCH"], fileManager: fileManager)
     ]
 }
 

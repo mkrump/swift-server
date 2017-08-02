@@ -2,7 +2,6 @@ import XCTest
 import HTTPResponse
 import HTTPRequest
 import FileSystem
-import MocksTests
 @testable import Routes
 
 class RoutesTests: XCTestCase {
