@@ -8,6 +8,7 @@ class FileRoute: Route {
     var name: String
     var methods: [String]
     var isDir: ObjCBool
+    var eTag: String?
     var mimeType: String!
     var url: String!
     var fileManager: FileSystem
@@ -67,6 +68,13 @@ class FileRoute: Route {
 
     func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         let method = request.requestLine.httpMethod
+        let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
+        if let currentEtag = generateEtag(content: content) {
+            eTag = currentEtag
+        }
+        if !eTagValid(currentEtag: eTag, headers: request.headers) {
+            return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.PRECONDITION_FAILED)
+        }
         if method == "OPTIONS" {
             return CommonResponses.OptionsResponse(methods: methods)
         }
@@ -81,13 +89,15 @@ class FileRoute: Route {
             }
         }
         if method == "PATCH" {
-            var data = Data(request.messageBody!.utf8)
-            var fileurl = URL(fileURLWithPath: self.url)
-            try? data.write(to: fileurl)
+            if let patchData = request.messageBody {
+
+                let data = Data(patchData.utf8)
+                let fileURL = URL(fileURLWithPath: self.url)
+                try? data.write(to: fileURL)
+            }
             return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.NO_CONTENT)
         }
 
-        let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
         return CommonResponses.OKResponse()
                 .addHeader(key: "Content-Type", value: self.mimeType)
                 .setMessage(message: content)
