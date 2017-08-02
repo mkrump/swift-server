@@ -4,6 +4,7 @@ import HTTPRequest
 import Templates
 import FileSystem
 
+<<<<<<< HEAD
 open class FileRoute: Route {
     public var name: String
     public var methods: [String]
@@ -12,6 +13,15 @@ open class FileRoute: Route {
     public var mimeType: String!
     public var url: String!
     public var fileManager: FileSystem
+=======
+class FileRoute: Route {
+    var name: String
+    var methods: [String]
+    var isDir: ObjCBool
+    var mimeType: String!
+    var url: String!
+    var fileManager: FileSystem
+>>>>>>> master
 
     public init(name: String, methods: [String] = ["GET", "HEAD"], isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
         self.name = name
@@ -22,7 +32,11 @@ open class FileRoute: Route {
         self.mimeType = setContentType(contentType: mimeType)
     }
 
+<<<<<<< HEAD
     public func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String, range: Range<Int> = 0..<0) -> Data {
+=======
+    private func fileToMessage(isDir: ObjCBool, fileManager: FileSystem, url: String, range: Range<Int> = 0..<0) -> Data {
+>>>>>>> master
         if isDir.boolValue {
             guard let dir = try? fileManager.contentsOfDirectory(atPath: url) else {
                 return Data()
@@ -56,6 +70,7 @@ open class FileRoute: Route {
             return nil
         }
     }
+<<<<<<< HEAD
 
     func isRangeRequest(headers: HeaderParse?) -> String? {
         if let headers = headers,
@@ -70,6 +85,20 @@ open class FileRoute: Route {
         let method = request.requestLine.httpMethod
         let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
 
+=======
+
+    func isRangeRequest(headers: HeaderParse?) -> String? {
+        if let headers = headers,
+           let headerDict = headers.headerDict,
+           let range = headerDict["Range"] {
+            return range
+        }
+        return nil
+    }
+
+    func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+        let method = request.requestLine.httpMethod
+>>>>>>> master
         if method == "OPTIONS" {
             return CommonResponses.OptionsResponse(methods: methods)
         }
@@ -80,10 +109,18 @@ open class FileRoute: Route {
                         .addHeader(key: "Content-Type", value: self.mimeType)
                         .setMessage(message: content)
             } else {
+<<<<<<< HEAD
                 return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.RANGE_NOT_SATISFIABLE)
             }
         }
 
+=======
+                return CommonResponses.DefaultHeaders().setResponseCode(responseCode: ResponseCodes.RANGE_NOT_SATISFIABLE)
+            }
+        }
+
+        let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
+>>>>>>> master
         return CommonResponses.OKResponse()
                 .addHeader(key: "Content-Type", value: self.mimeType)
                 .setMessage(message: content)
