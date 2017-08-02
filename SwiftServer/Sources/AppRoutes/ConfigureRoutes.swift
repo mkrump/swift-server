@@ -12,7 +12,7 @@ public func setupRoutes() -> Routes {
     serverRoutes.addRoute(route: CoffeeRoute(name: "/coffee", methods: ["GET"]))
     serverRoutes.addRoute(route: TeaRoute(name: "/tea", methods: ["GET"]))
     serverRoutes.addRoute(route: RedirectRoute(name: "/redirect", newRoute: "/"))
-    serverRoutes.addRoute(route: PatchRoute(name: "/partial.txt", fullPath: "/Users/mathewkrump/Server/cob_spec/public"))
+    serverRoutes.addRoute(route: PatchRoute(name: "/patch-content.txt", methods: ["GET", "PATCH"], path: "/Users/mathewkrump/Server/cob_spec/public"))
     return serverRoutes
 }
 

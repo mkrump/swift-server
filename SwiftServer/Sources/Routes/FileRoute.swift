@@ -13,9 +13,9 @@ open class FileRoute: Route {
     public var url: String!
     public var fileManager: FileSystem
 
-    public init(name: String, isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
+    public init(name: String, methods: [String] = ["GET", "HEAD"], isDir: ObjCBool, fileManager: FileSystem, fullPath: String, mimeType: String? = nil) {
         self.name = name
-        self.methods = ["GET", "HEAD"]
+        self.methods = methods
         self.isDir = isDir
         self.fileManager = fileManager
         self.url = fullPath

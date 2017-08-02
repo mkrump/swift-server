@@ -24,10 +24,10 @@ public class Routes {
 
     private func isValidRoute(routes: [String: Route], url: simpleURL, fileManager: FileSystem) -> Route? {
         var isDir: ObjCBool = false
-        if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
-            return FileRoute(name: url.baseName, isDir: isDir, fileManager: fileManager, fullPath: url.fullName)
-        } else if let route = routes[url.baseName] {
+        if let route = routes[url.baseName] {
             return route
+        } else if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
+            return FileRoute(name: url.baseName, isDir: isDir, fileManager: fileManager, fullPath: url.fullName)
         }
         return nil
     }

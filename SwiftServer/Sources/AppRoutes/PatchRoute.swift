@@ -6,8 +6,8 @@ import Templates
 import Routes
 
 class PatchRoute: FileRoute {
-    init(name: String, fullPath: String) {
-        super.init(name: name, isDir: ObjCBool(false), fileManager: ServerFileManager(), fullPath: fullPath)
+    init(name: String, methods: [String], path: String) {
+        super.init(name: name, methods: methods, isDir: ObjCBool(false), fileManager: ServerFileManager(), fullPath: path + name)
     }
 
     override func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
