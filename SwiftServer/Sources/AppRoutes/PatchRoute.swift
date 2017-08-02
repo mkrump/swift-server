@@ -6,13 +6,13 @@ import Templates
 import Routes
 
 class PatchRoute: FileRoute {
-    init(name: String, methods: [String], path: String) {
-        super.init(name: name, methods: methods, isDir: ObjCBool(false), fileManager: ServerFileManager(), fullPath: path + name)
+    init(name: String, methods: [String], path: String, fileManager: FileSystem) {
+        super.init(url: simpleURL(path: path, baseName: name), methods: methods, isDir: ObjCBool(false), fileManager: fileManager)
     }
 
     override func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         let method = request.requestLine.httpMethod
-        let content = fileToMessage(isDir: isDir, fileManager: fileManager, url: url)
+        let content = fileToMessage(isDir: isDir, fileManager: fileManager, fullPath: fullPath)
         if let currentEtag = generateEtag(content: content) {
             eTag = currentEtag
         }
@@ -22,7 +22,7 @@ class PatchRoute: FileRoute {
         if method == "PATCH" {
             if let patchData = request.messageBody {
                 let data = Data(patchData.utf8)
-                let fileURL = URL(fileURLWithPath: self.url)
+                let fileURL = URL(fileURLWithPath: self.fullPath)
                 try? data.write(to: fileURL)
             }
             return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.NO_CONTENT)

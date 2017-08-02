@@ -27,7 +27,7 @@ public class Routes {
         if let route = routes[url.baseName] {
             return route
         } else if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
-            return FileRoute(name: url.baseName, isDir: isDir, fileManager: fileManager, fullPath: url.fullName)
+            return FileRoute(url: url, isDir: isDir, fileManager: fileManager)
         }
         return nil
     }
