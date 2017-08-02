@@ -35,7 +35,7 @@ public class Server {
     }
 
     public func start() throws {
-        routes = setupRoutes()
+        routes = setupRoutes(path: directory)
         serverRunning = true
         repeat {
             let clientSocket = try listener.acceptClientConnection()

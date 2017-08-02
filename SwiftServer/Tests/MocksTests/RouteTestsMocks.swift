@@ -50,7 +50,7 @@ public class MockHTTParsedRequest: HTTPRequestParse {
     public var messageBody: String?
 
     public init(startLine: RequestLineParse, headers: HeaderParse? = nil,
-         headerDict: [String: String]? = nil, messageBody: String? = nil) {
+                headerDict: [String: String]? = nil, messageBody: String? = nil) {
         self.headers = headers
         self.headerDict = headerDict
         self.messageBody = messageBody

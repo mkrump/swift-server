@@ -1,5 +1,6 @@
 import XCTest
 import Socket
+import MocksTests
 @testable import HTTPResponse
 
 class HTTPResponseTests: XCTestCase {

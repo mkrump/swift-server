@@ -6,14 +6,15 @@ let package = Package(
         name: "SwiftServer",
         targets: [
             Target(name: "CommandLineParser"),
-            Target(name: "HTTPRequest"),
+            Target(name: "HTTPRequest", dependencies: ["FileSystem", "Templates"]),
             Target(name: "Main", dependencies: ["CommandLineParser", "Server"]),
             Target(name: "HTTPResponse"),
             Target(name: "FileSystem"),
             Target(name: "Routes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem"]),
-            Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes", "AppRoutes"]),
+            Target(name: "Server", dependencies: ["HTTPResponse", "HTTPRequest", "FileSystem", "Routes", "AppRoutes"]),
             Target(name: "Templates"),
-            Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"])
+            Target(name: "AppRoutes", dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"]),
+            Target(name: "MocksTests", dependencies: ["HTTPResponse", "HTTPRequest", "FileSystem", "Routes"])
         ],
         dependencies: [
             .Package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", majorVersion: 0),
