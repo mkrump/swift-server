@@ -40,4 +40,9 @@ public struct CommonResponses {
     public static func PartialContentResponse() -> HTTPResponse {
         return DefaultHeaders(responseCode: ResponseCodes.PARTIAL_CONTENT)
     }
+
+    public static func UnauthorizedResponse(realmName: String) -> HTTPResponse {
+        return DefaultHeaders(responseCode: ResponseCodes.UNAUTHORIZED)
+                .addHeader(key: "WWW-Authenticate", value: "Basic realm=\"\(realmName)\"")
+    }
 }

@@ -1,4 +1,5 @@
 .idea
+*.log
 cob_spec/
 /SwiftServer/.DS_Store
 /SwiftServer/.build

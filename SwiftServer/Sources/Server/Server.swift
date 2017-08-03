@@ -18,9 +18,10 @@ public class Server {
     var serverRunning: Bool
     var routes: Routes!
     var fileManager: FileSystem
+    var logger: Logger?
     public var listener: Socket
 
-    public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1") throws {
+    public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1", logPath: String? = nil) throws {
         self.portNumber = portNumber
         self.directory = directory
         self.serverRunning = false
@@ -32,10 +33,13 @@ public class Server {
         } catch {
             throw ServerErrors.socketCreationFailed
         }
+        if let logPath = logPath {
+            self.logger = try Logger(path: logPath)
+        }
     }
 
     public func start() throws {
-        routes = setupRoutes(path: directory, fileManager: fileManager)
+        routes = setupRoutes(path: directory, fileManager: fileManager, logPath: logger?.path)
         serverRunning = true
         repeat {
             let clientSocket = try listener.acceptClientConnection()
@@ -44,6 +48,9 @@ public class Server {
                 try clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
                 clientSocket.close()
                 continue
+            }
+            if let logger = logger {
+                logger.appendLog(contents: parsedRequest.requestLine.rawRequestLine)
             }
             try respond(request: parsedRequest, clientSocket: clientSocket)
         } while serverRunning
