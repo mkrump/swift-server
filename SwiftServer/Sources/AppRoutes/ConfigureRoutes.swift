@@ -11,6 +11,7 @@ func createVirtualRoutes(path: String, fileManager: FileSystem) -> [Route] {
         MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]),
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
+        LogRoute(name: "/logs", methods: ["GET"]),
         RedirectRoute(name: "/redirect", newRoute: "/"),
         PatchRoute(url: simpleURL(path: path, baseName: "/patch-content.txt"), methods: ["GET", "PATCH"], fileManager: fileManager)
     ]
