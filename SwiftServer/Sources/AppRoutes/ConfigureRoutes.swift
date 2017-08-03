@@ -5,7 +5,10 @@ import Routes
 
 func createVirtualRoutes(path: String, fileManager: FileSystem, logPath: String? = nil) -> [Route] {
     return [
+        CookieRoute(name: "/cookie", methods: ["GET"]),
+        EatCookieRoute(name: "/eat_cookie", methods: ["GET"]),
         FormRoute(name: "/form", methods: ["GET", "POST", "PUT", "DELETE"]),
+        MethodOptions(name: "/method_options", methods: ["GET", "HEAD", "POST", "OPTIONS", "PUT"]),
         ParametersRoute(name: "/parameters", methods: ["GET"]),
         MethodOptions(name: "/method_options", methods: ["GET", "HEAD", "POST", "OPTIONS", "PUT"]),
         MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]),
