@@ -14,11 +14,10 @@ public func echoParams(params: [String: String]) -> String {
     return html
 }
 
-public func imATeapot() -> String {
+public func basicTemplate(message: String) -> String {
     let html = "<!DOCTYPE html \"><html>" +
-            "<title>418 </title>" +
             "<body>" +
-            "<p>I'm a teapot</p>" +
+            "<p>\(message)</p>" +
             "</body>" +
             "</html>"
     return html
