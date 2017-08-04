@@ -22,12 +22,12 @@ public class Routes {
         routes.removeValue(forKey: route.name)
     }
 
-    private func isValidRoute(routes: [String: Route], url: URL, fileManager: FileSystem) -> Route? {
+    private func isValidRoute(routes: [String: Route], url: simpleURL, fileManager: FileSystem) -> Route? {
         var isDir: ObjCBool = false
-        if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
-            return FileRoute(name: url.baseName, isDir: isDir, fileManager: fileManager, fullPath: url.fullName)
-        } else if let route = routes[url.baseName] {
+        if let route = routes[url.baseName] {
             return route
+        } else if fileManager.fileExists(atPath: url.fullName, isDirectory: &isDir) {
+            return FileRoute(url: url, isDir: isDir, fileManager: fileManager)
         }
         return nil
     }
@@ -40,7 +40,7 @@ public class Routes {
         }
     }
 
-    public func routeRequest(request: HTTPRequestParse, url: URL, fileManager: FileSystem) -> HTTPResponse {
+    public func routeRequest(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {
         if var route = isValidRoute(routes: routes, url: url, fileManager: fileManager) {
             return getResponse(route: &route, request: request)
         } else {

@@ -35,7 +35,7 @@ public class Server {
     }
 
     public func start() throws {
-        routes = setupRoutes()
+        routes = setupRoutes(path: directory, fileManager: fileManager)
         serverRunning = true
         repeat {
             let clientSocket = try listener.acceptClientConnection()
@@ -55,7 +55,7 @@ public class Server {
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
-        let url = URL(path: self.directory, baseName: request.requestLine.target)
+        let url = simpleURL(path: self.directory, baseName: request.requestLine.target)
         let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)

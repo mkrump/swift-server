@@ -1,5 +1,4 @@
 import XCTest
-@testable import Server
 
 class CacheTests: XCTestCase {
     var bytes: [UInt8]!
