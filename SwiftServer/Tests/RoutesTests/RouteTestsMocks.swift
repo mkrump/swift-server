@@ -25,12 +25,14 @@ public class MockRequestLine: RequestLineParse {
     public var target: String!
     public var params: [String: String]?
     public var httpVersion: String!
+    public private(set) var rawRequestLine: String = ""
 
     public init(httpMethod: String, target: String, httpVersion: String) {
         self.httpMethod = httpMethod
         self.target = target
         self.httpVersion = httpVersion
     }
+
 }
 
 public class MockHTTParsedRequest: HTTPRequestParse {

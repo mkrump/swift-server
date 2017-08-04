@@ -3,6 +3,7 @@ public protocol RequestLineParse {
     var target: String! { get }
     var params: [String: String]? { get }
     var httpVersion: String! { get }
+    var rawRequestLine: String {get}
 }
 
 extension Dictionary {
@@ -19,8 +20,10 @@ public class RequestLine: RequestLineParse {
     public var target: String!
     public var params: [String: String]?
     public var httpVersion: String!
+    public var rawRequestLine: String
 
     init(requestLine: String) throws {
+        rawRequestLine = requestLine
         var requestLineArray = requestLine.components(separatedBy: " ")
         if requestLineArray.count != 3 {
             throw ParsingErrors.BadRequest
