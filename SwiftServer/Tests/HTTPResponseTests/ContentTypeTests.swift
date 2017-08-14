@@ -2,6 +2,10 @@ import XCTest
 import Socket
 @testable import HTTPResponse
 
+import XCTest
+import Socket
+@testable import HTTPResponse
+
 class ContentTypeTests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -29,3 +33,4 @@ class ContentTypeTests: XCTestCase {
         XCTAssertEqual("image/png", contentType)
     }
 }
+

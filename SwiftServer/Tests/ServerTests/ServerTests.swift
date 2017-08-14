@@ -1,5 +1,7 @@
 import XCTest
 import Socket
+import FileSystem
+import AppRoutes
 @testable import Server
 
 class SwiftServerTests: XCTestCase {
@@ -9,7 +11,14 @@ class SwiftServerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         do {
-            server = try Server(portNumber: 5000, directory: "/tmp")
+            let appConfig = AppConfig(
+                    directory: "/tmp",
+                    portNumber: 5000,
+                    fileManager: ServerFileManager(),
+                    logPath: "/server.log",
+                    hostName: "127.0.0.1"
+            )
+            server = try Server(appConfig: appConfig)
             queue = DispatchQueue(label: "queue1", qos: .default)
             queue.async {
                 do {

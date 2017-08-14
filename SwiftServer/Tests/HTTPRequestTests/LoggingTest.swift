@@ -4,7 +4,7 @@ import XCTest
 
 class LoggingTests: XCTestCase {
     func testFileWrite() {
-        let path = "testlog.txt"
+        let path = "testlog.log"
         let contents = "HI!"
         guard let logger = try? Logger(path: path) else {
             XCTFail()
@@ -19,7 +19,7 @@ class LoggingTests: XCTestCase {
     }
 
     func testMultipleFileWrites() {
-        let path = "testlog.txt"
+        let path = "testlog.log"
         let contents = "HI!"
         guard let logger = try? Logger(path: path) else {
             XCTFail()

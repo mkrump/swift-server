@@ -1,9 +1,7 @@
-import Foundation
-import HTTPResponse
-import FileSystem
 import Routes
+import FileSystem
 
-func createVirtualRoutes(path: String, fileManager: FileSystem, logPath: String? = nil) -> [Route] {
+public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     return [
         CookieRoute(name: "/cookie", methods: ["GET"]),
         EatCookieRoute(name: "/eat_cookie", methods: ["GET"]),
@@ -14,17 +12,18 @@ func createVirtualRoutes(path: String, fileManager: FileSystem, logPath: String?
         MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]),
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
-        LogRoute(name: "/logs", methods: ["GET"], fileManager: fileManager, logPath: logPath),
+        LogRoute(name: "/logs", methods: ["GET"],
+                fileManager: appConfig.fileManager, logPath: appConfig.logPath),
         RedirectRoute(name: "/redirect", newRoute: "/"),
-        PatchRoute(url: simpleURL(path: path, baseName: "/patch-content.txt"), methods: ["GET", "PATCH"], fileManager: fileManager)
+        PatchRoute(url: simpleURL(path: appConfig.directory, baseName: "/patch-content.txt"),
+                methods: ["GET", "PATCH"], fileManager: appConfig.fileManager)
     ]
 }
 
-public func setupRoutes(path: String, fileManager: FileSystem, logPath: String? = nil) -> Routes {
-    let serverRoutes = Routes()
-    let virtualRoutes = createVirtualRoutes(path: path, fileManager: fileManager, logPath: logPath)
-    for route in virtualRoutes {
-        serverRoutes.addRoute(route: route)
-    }
-    return serverRoutes
-}
+public var appConfig = AppConfig(
+        directory: "./",
+        portNumber: 4000,
+        fileManager: ServerFileManager(),
+        logPath: "../server.log",
+        hostName: "127.0.0.1"
+)

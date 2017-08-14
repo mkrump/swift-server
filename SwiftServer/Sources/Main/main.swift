@@ -1,9 +1,12 @@
 import Foundation
 import CommandLineParser
+import AppRoutes
 import Server
 
-let logDir = "/Users/mathewkrump/Server/"
 let commandArgLineParser = CommandLineArgParser()
 let args = try commandArgLineParser.getOpt(argc: CommandLine.argc, argv: CommandLine.unsafeArgv)
-let server = try Server(portNumber: args.portNumber, directory: args.directory, logPath: logDir + "server.log")
+appConfig.directory = args.directory
+appConfig.portNumber = args.portNumber
+appConfig.serverRoutes = addRoutes(appConfig: appConfig)
+let server = try Server(appConfig: appConfig)
 _ = try server.start()

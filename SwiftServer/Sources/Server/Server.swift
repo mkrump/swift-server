@@ -22,21 +22,26 @@ public class Server {
     var connections: [Int32: Socket] = [:]
     public var listener: Socket
 
-    public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1", logPath: String? = nil) throws {
-        self.portNumber = portNumber
-        self.directory = directory
+    public init(appConfig: AppConfig) throws {
+        self.portNumber = appConfig.portNumber
+        self.directory = appConfig.directory
         self.serverRunning = false
-        self.hostName = hostName
-        self.fileManager = ServerFileManager()
+        self.hostName = appConfig.hostName
+        self.fileManager = appConfig.fileManager
         do {
             self.listener = try Socket.create()
             try listener.listen(on: portNumber)
         } catch {
             throw ServerErrors.socketCreationFailed
         }
-        if let logPath = logPath {
-            self.logger = try Logger(path: logPath)
+        if let logPath = appConfig.logPath {
+            do {
+                self.logger = try Logger(path: logPath)
+            } catch {
+                print("Couldn't create log file at: \(logPath)")
+            }
         }
+        routes = appConfig.serverRoutes
     }
 
     deinit {
@@ -45,7 +50,6 @@ public class Server {
     }
 
     public func start() throws {
-        routes = setupRoutes(path: directory, fileManager: fileManager, logPath: logger?.path)
         serverRunning = true
         let queue = DispatchQueue(label: "listenerQueue", attributes: .concurrent)
         repeat {
@@ -73,7 +77,10 @@ public class Server {
             return
         }
         if let logger = self.logger {
-            logger.appendLog(contents: parsedRequest.requestLine.rawRequestLine)
+            let date = Date().dateToRFC822String()
+            let request = parsedRequest.requestLine.rawRequestLine
+            let logLine = "[\(date)] \(request)"
+            logger.appendLog(contents: logLine)
         }
         try? self.respond(request: parsedRequest, clientSocket: clientSocket)
     }

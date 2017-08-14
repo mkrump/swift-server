@@ -1,7 +1,10 @@
+import Foundation
+
 public struct CommonResponses {
     public static func DefaultHeaders(responseCode: (code: Int, message: String)) -> HTTPResponse {
         return HTTPResponse()
                 .setVersion(version: 1.1)
+                .addHeader(key: "Date", value: Date().dateToRFC822String())
                 .setResponseCode(responseCode: responseCode)
     }
 
