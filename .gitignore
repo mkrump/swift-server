@@ -1,7 +1,7 @@
 .idea
 *.log
 cob_spec/
-/SwiftServer/.DS_Store
-/SwiftServer/.build
-/SwiftServer/Packages
-/SwiftServer/*.xcodeproj
+.DS_Store
+.build
+Packages
+*.xcodeproj
