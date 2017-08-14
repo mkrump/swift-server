@@ -20,5 +20,5 @@ swift build
 ```
 
 #### Acceptance tests
+
 Run the shell script `acceptance_tests.sh`
-=======

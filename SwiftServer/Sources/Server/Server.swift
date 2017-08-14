@@ -19,6 +19,7 @@ public class Server {
     var routes: Routes!
     var fileManager: FileSystem
     var logger: Logger?
+    var connections: [Int32: Socket] = [:]
     public var listener: Socket
 
     public init(portNumber: Int, directory: String, hostName: String = "127.0.0.1", logPath: String? = nil) throws {
@@ -38,27 +39,43 @@ public class Server {
         }
     }
 
+    deinit {
+        connections.values.forEach({ $0.close() })
+        listener.close()
+    }
+
     public func start() throws {
         routes = setupRoutes(path: directory, fileManager: fileManager, logPath: logger?.path)
         serverRunning = true
+        let queue = DispatchQueue(label: "listenerQueue", attributes: .concurrent)
         repeat {
-            let clientSocket = try listener.acceptClientConnection()
-            guard let request = try? readClientSocket(clientSocket: clientSocket),
-                  let parsedRequest = try? parseRequest(request: request) else {
-                try clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
-                clientSocket.close()
-                continue
+            let clientSocket = try self.listener.acceptClientConnection()
+            queue.async {
+                self.handleClientRequest(clientSocket: clientSocket)
             }
-            if let logger = logger {
-                logger.appendLog(contents: parsedRequest.requestLine.rawRequestLine)
-            }
-            try respond(request: parsedRequest, clientSocket: clientSocket)
-        } while serverRunning
+            continue
+        } while self.serverRunning
     }
 
     public func stop() {
         serverRunning = false
+        connections.values.forEach({ $0.close() })
         listener.close()
+    }
+
+    private func handleClientRequest(clientSocket: Socket) {
+        self.connections[clientSocket.socketfd] = clientSocket
+        guard let request = try? self.readClientSocket(clientSocket: clientSocket),
+              let parsedRequest = try? self.parseRequest(request: request) else {
+            _ = try? clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
+            connections.removeValue(forKey: clientSocket.socketfd)
+            clientSocket.close()
+            return
+        }
+        if let logger = self.logger {
+            logger.appendLog(contents: parsedRequest.requestLine.rawRequestLine)
+        }
+        try? self.respond(request: parsedRequest, clientSocket: clientSocket)
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
