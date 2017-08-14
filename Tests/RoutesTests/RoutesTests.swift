@@ -44,7 +44,7 @@ class RoutesTests: XCTestCase {
         return routes.routeRequest(request: mockHTTPParse, url: url, fileManager: mockNoDirFileManager)
     }
 
-    func testBadRoute() {
+    func testNoRouteIs404() {
         let badRouteResponse = generateMockResponses(httpMethod: "HEAD",
                 target: "/no-route-here", mockFileSystem: MockIsRoute())
         XCTAssertEqual(badRouteResponse.responseCode!.code, 404)

@@ -15,7 +15,7 @@ extension Dictionary {
     }
 }
 
-public class RequestLine: RequestLineParse {
+class RequestLine: RequestLineParse {
     public var httpMethod: String!
     public var target: String!
     public var params: [String: String]?

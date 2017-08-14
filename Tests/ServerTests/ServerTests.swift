@@ -20,7 +20,7 @@ class SwiftServerTests: XCTestCase {
             )
             server = try Server(appConfig: appConfig)
             queue = DispatchQueue(label: "queue1", qos: .default)
-            queue.async {
+            queue.asyncAfter(deadline: .now() + 0.25) {
                 do {
                     try self.server.start()
                 } catch {
@@ -36,5 +36,27 @@ class SwiftServerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         server.stop()
+    }
+
+    func testCanConnect() {
+        do {
+            let clientSocket = try Socket.create()
+            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
+            XCTAssertTrue(clientSocket.isConnected)
+        } catch {
+            XCTFail()
+        }
+    }
+
+    func testQuit() {
+        do {
+            let clientSocket = try Socket.create()
+            try clientSocket.connect(to: server.listener.remoteHostname, port: Int32(server.portNumber))
+            XCTAssertTrue(clientSocket.isConnected)
+            try clientSocket.write(from: Data("QUIT".utf8))
+        } catch {
+            XCTFail()
+        }
+        XCTAssertFalse(server.serverRunning)
     }
 }

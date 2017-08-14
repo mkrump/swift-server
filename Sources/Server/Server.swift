@@ -48,6 +48,7 @@ public class Server {
 
     deinit {
         connections.values.forEach({ $0.close() })
+        connections.removeAll()
         listener.close()
     }
 
@@ -66,6 +67,7 @@ public class Server {
     public func stop() {
         serverRunning = false
         connections.values.forEach({ $0.close() })
+        connections.removeAll()
         listener.close()
     }
 
@@ -74,17 +76,35 @@ public class Server {
         guard let request = try? self.readClientSocket(clientSocket: clientSocket),
               let parsedRequest = try? self.parseRequest(request: request) else {
             _ = try? clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
-            connections.removeValue(forKey: clientSocket.socketfd)
-            clientSocket.close()
+            closeClientSocket(clientSocket: clientSocket)
             return
         }
+        logRequest(parsedRequest: parsedRequest)
+        try? self.respond(request: parsedRequest, clientSocket: clientSocket)
+    }
+
+    private func readClientSocket(clientSocket: Socket) throws -> String {
+        var readData = Data()
+        _ = try clientSocket.read(into: &readData)
+        guard let request = String(data: readData, encoding: String.Encoding.utf8) else {
+            throw ServerErrors.badRequest
+        }
+        handleStopSignal(request: request, clientSocket: clientSocket)
+        return request
+    }
+
+    private func closeClientSocket(clientSocket: Socket) {
+        connections.removeValue(forKey: clientSocket.socketfd)
+        clientSocket.close()
+    }
+
+    private func logRequest(parsedRequest: HTTPRequestParse) {
         if let logger = self.logger {
             let date = Date().dateToRFC822String()
             let request = parsedRequest.requestLine.rawRequestLine
             let logLine = "[\(date)] \(request)"
             logger.appendLog(contents: logLine)
         }
-        try? self.respond(request: parsedRequest, clientSocket: clientSocket)
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
@@ -93,7 +113,7 @@ public class Server {
         let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
-        clientSocket.close()
+        closeClientSocket(clientSocket: clientSocket)
     }
 
     private func parseRequest(request: String) throws -> HTTPRequestParse {
@@ -103,16 +123,10 @@ public class Server {
         return parsedRequest
     }
 
-    private func readClientSocket(clientSocket: Socket) throws -> String {
-        var readData = Data()
-        _ = try clientSocket.read(into: &readData)
-        guard let request = String(data: readData, encoding: String.Encoding.utf8) else {
-            throw ServerErrors.badRequest
-        }
+    private func handleStopSignal(request: String, clientSocket: Socket) {
         if request.hasPrefix("QUIT") {
             clientSocket.close()
             stop()
         }
-        return request
     }
 }
