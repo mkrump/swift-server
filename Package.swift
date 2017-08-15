@@ -9,7 +9,7 @@ let package = Package(
                     dependencies: ["HTTPResponse", "HTTPRequest", "Templates", "FileSystem", "Routes"]),
             Target(name: "CommandLineParser"),
             Target(name: "Configuration",
-                    dependencies: ["FileSystem", "Routes", "AppRoutes"]),
+                    dependencies: ["FileSystem", "MiddleWare", "Routes", "AppRoutes"]),
             Target(name: "FileSystem",
                     dependencies: ["SimpleURL"]),
             Target(name: "HTTPRequest",

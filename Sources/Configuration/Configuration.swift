@@ -2,6 +2,9 @@ import Routes
 import SimpleURL
 import FileSystem
 import AppRoutes
+import MiddleWare
+
+var creds = Auth(credentials: ["admin": "hunter2"])
 
 public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     return [
@@ -14,9 +17,11 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
         MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]),
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
-        LogRoute(name: "/logs", methods: ["GET"],
-                fileManager: appConfig.fileManager,
-                logPath: simpleURL(path: appConfig.directory, baseName: appConfig.logPath!)),
+        AuthMiddleWare(route:
+            LogRoute(name: "/logs", methods: ["GET"],
+                    fileManager: appConfig.fileManager,
+                    logPath: simpleURL(path: appConfig.directory, baseName: appConfig.logPath!)),
+                    auth: creds),
         RedirectRoute(name: "/redirect", newRoute: "/"),
         PatchRoute(url: simpleURL(path: appConfig.directory, baseName: "/patch-content.txt"),
                 methods: ["GET", "PATCH"], fileManager: appConfig.fileManager)

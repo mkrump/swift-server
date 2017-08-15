@@ -23,7 +23,7 @@ public class AuthMiddleWare: Route {
     public var name: String
     public var methods: [String]
 
-    init(route: Route, auth: Auth) {
+    public init(route: Route, auth: Auth) {
         self.route = route
         self.auth = auth
         self.name = route.name
