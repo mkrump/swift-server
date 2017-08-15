@@ -13,6 +13,7 @@ class MiddleWareTests: XCTestCase {
     var mockFileManager: MockIsRoute!
     var path: String!
     var auth: Auth!
+    var secondStepAuth: Auth!
 
     override func setUp() {
         path = "public"
@@ -25,6 +26,7 @@ class MiddleWareTests: XCTestCase {
                 })
         routes.addRoute(route: mockValidRoute)
         auth = Auth(credentials: ["abc": "123"])
+        secondStepAuth = Auth(credentials: ["admin": "admin"])
         super.setUp()
     }
 
@@ -34,7 +36,7 @@ class MiddleWareTests: XCTestCase {
 
     func generateMockResponses(userNameAttempt: String?, passwordAttempt: String?, target: String) -> HTTPResponse {
         let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: target, httpVersion: "HTTTP/1.1")
-        let mockHTTPParse : MockHTTParsedRequest
+        let mockHTTPParse: MockHTTParsedRequest
         if userNameAttempt != nil && passwordAttempt != nil {
             let base64EncodedString = Data((userNameAttempt! + ":" + passwordAttempt!).utf8).base64EncodedString()
             let mockHeaders = MockHeaders(rawHeaders: "Authorization: Basic " + base64EncodedString,
@@ -73,5 +75,21 @@ class MiddleWareTests: XCTestCase {
         routes.addRoute(route: updatedRoute)
         let response = generateMockResponses(userNameAttempt: nil, passwordAttempt: nil, target: "/valid")
         XCTAssertEqual(response.responseCode!.code, 401)
+    }
+
+    func testMultipleAuthFail() {
+        var updatedRoute = AuthMiddleWare(route: mockValidRoute, auth: auth)
+        updatedRoute = AuthMiddleWare(route: mockValidRoute, auth: secondStepAuth)
+        routes.addRoute(route: updatedRoute)
+        let response = generateMockResponses(userNameAttempt: "abc", passwordAttempt: "123", target: "/valid")
+        XCTAssertEqual(response.responseCode!.code, 401)
+    }
+
+    func testMultipleAuthPass() {
+        var updatedRoute = AuthMiddleWare(route: mockValidRoute, auth: auth)
+        updatedRoute = AuthMiddleWare(route: mockValidRoute, auth: auth)
+        routes.addRoute(route: updatedRoute)
+        let response = generateMockResponses(userNameAttempt: "abc", passwordAttempt: "123", target: "/valid")
+        XCTAssertEqual(response.responseCode!.code, 200)
     }
 }

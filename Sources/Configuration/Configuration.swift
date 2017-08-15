@@ -26,6 +26,8 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     ]
 }
 
+//TODO refine this s.t. can just add list of routes and map over it
+//[].addMiddleWare(AuthMiddleWare)
 public func addMiddleWare(routes: Routes) {
     for routeName in ["/logs", "/tea"] {
         if let routeName = routes.getRoute(routeName: routeName) {
