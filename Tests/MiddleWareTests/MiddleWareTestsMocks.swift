@@ -89,34 +89,3 @@ public class MockIsRoute: FileSystem {
     }
 }
 
-public class MockIsFile: MockIsRoute {
-    public override init() {
-    }
-
-    override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
-        if let isDir = isDirectory {
-            isDir.pointee = false
-        }
-        return true
-    }
-
-    override public func contentsOfDirectory(atPath path: String) throws -> [String] {
-        return ["dir1", "dir2"]
-    }
-
-    override public func contents(atPath path: String) -> Data? {
-        return Data("Hi!".utf8)
-    }
-}
-
-public class MockIsDir: MockIsRoute {
-    public override init() {
-    }
-
-    override public func fileExists(atPath path: String, isDirectory: UnsafeMutablePointer<ObjCBool>?) -> Bool {
-        if let isDir = isDirectory {
-            isDir.pointee = true
-        }
-        return true
-    }
-}

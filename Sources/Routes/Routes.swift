@@ -4,6 +4,7 @@ import HTTPRequest
 import SimpleURL
 import FileSystem
 import Templates
+import MiddleWare
 
 public class Routes {
     var routes: [String: Route]
@@ -13,9 +14,6 @@ public class Routes {
     }
 
     public func addRoute(route: Route) {
-        if routes.keys.contains(route.name) {
-            return
-        }
         routes.updateValue(route, forKey: route.name)
     }
 

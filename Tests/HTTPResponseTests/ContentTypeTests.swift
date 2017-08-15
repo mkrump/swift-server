@@ -28,4 +28,3 @@ class ContentTypeTests: XCTestCase {
         XCTAssertEqual("image/png", contentType)
     }
 }
-

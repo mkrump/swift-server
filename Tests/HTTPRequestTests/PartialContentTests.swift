@@ -1,6 +1,6 @@
 import XCTest
 
-class CacheTests: XCTestCase {
+class PartialContentTests: XCTestCase {
     var bytes: [UInt8]!
 
     override func setUp() {

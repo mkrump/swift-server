@@ -2,9 +2,11 @@ import Routes
 import SimpleURL
 import FileSystem
 import AppRoutes
+import MiddleWare
 
 public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     return [
+        AdminRoute(name: "/admin", methods: ["GET"]),
         CookieRoute(name: "/cookie", methods: ["GET"]),
         EatCookieRoute(name: "/eat_cookie", methods: ["GET"]),
         FormRoute(name: "/form", methods: ["GET", "POST", "PUT", "DELETE"]),
@@ -28,5 +30,6 @@ public var appConfig = AppConfig(
         portNumber: 5000,
         fileManager: ServerFileManager(),
         logPath: "/server.log",
-        hostName: "0.0.0.0"
+        hostName: "0.0.0.0",
+        middleWare: MiddlewareExecutor()
 )
