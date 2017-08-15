@@ -35,3 +35,5 @@ public class LogRoute: Route {
         return CommonResponses.DefaultHeaders(responseCode: ResponseCodes.OK)
     }
 }
+
+

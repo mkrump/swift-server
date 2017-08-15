@@ -20,6 +20,16 @@ public struct MockRoute: Route {
     }
 }
 
+public class MockHeaders: HeaderParse {
+    public var rawHeaders: String?
+    public var headerDict: [String: String]?
+
+    public init(rawHeaders: String, headerDict: [String: String]) {
+        self.rawHeaders = rawHeaders
+        self.headerDict = headerDict
+    }
+}
+
 public class MockRequestLine: RequestLineParse {
     public var httpMethod: String!
     public var target: String!

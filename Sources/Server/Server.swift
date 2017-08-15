@@ -22,7 +22,7 @@ public class Server {
     var fileManager: FileSystem
     var logger: Logger?
     var connections: [Int32: Socket] = [:]
-    public var listener: Socket
+    public var listener: Socket!
 
     public init(appConfig: AppConfig) throws {
         self.portNumber = appConfig.portNumber
@@ -30,12 +30,21 @@ public class Server {
         self.serverRunning = false
         self.hostName = appConfig.hostName
         self.fileManager = appConfig.fileManager
+        try addListener()
+        addLogger(appConfig: appConfig)
+        routes = appConfig.serverRoutes
+    }
+
+    private func addListener() throws {
         do {
             self.listener = try Socket.create()
             try listener.listen(on: portNumber)
         } catch {
             throw ServerErrors.socketCreationFailed
         }
+    }
+
+    private func addLogger(appConfig: AppConfig) {
         if let logPath = appConfig.logPath {
             do {
                 self.logger = try Logger(url: simpleURL(path: self.directory, baseName: logPath))
@@ -43,7 +52,6 @@ public class Server {
                 print("Couldn't create log file at: \(logPath)")
             }
         }
-        routes = appConfig.serverRoutes
     }
 
     deinit {

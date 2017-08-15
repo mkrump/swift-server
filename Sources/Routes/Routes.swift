@@ -13,10 +13,14 @@ public class Routes {
     }
 
     public func addRoute(route: Route) {
-        if routes.keys.contains(route.name) {
-            return
-        }
         routes.updateValue(route, forKey: route.name)
+    }
+
+    public func getRoute(routeName: String) -> Route? {
+        if let route = routes[routeName] {
+            return route
+        }
+        return nil
     }
 
     public func removeRoute(route: Route) {
