@@ -17,16 +17,21 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
         MethodOptions2(name: "/method_options2", methods: ["GET", "OPTIONS"]),
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
-        AuthMiddleWare(
-                route:
-                LogRoute(name: "/logs", methods: ["GET"],
+        LogRoute(name: "/logs", methods: ["GET"],
                         fileManager: appConfig.fileManager,
                         logPath: simpleURL(path: appConfig.directory, baseName: appConfig.logPath!)),
-                auth: creds),
         RedirectRoute(name: "/redirect", newRoute: "/"),
         PatchRoute(url: simpleURL(path: appConfig.directory, baseName: "/patch-content.txt"),
                 methods: ["GET", "PATCH"], fileManager: appConfig.fileManager)
     ]
+}
+
+public func addMiddleWare(routes: Routes) {
+    for routeName in ["/logs", "/tea"] {
+        if let routeName = routes.getRoute(routeName: routeName) {
+            routes.addRoute(route: AuthMiddleWare(route: routeName, auth: creds))
+        }
+    }
 }
 
 public var appConfig = AppConfig(

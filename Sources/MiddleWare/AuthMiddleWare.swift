@@ -24,6 +24,8 @@ public class AuthMiddleWare: Route {
     public var methods: [String]
 
     public init(route: Route, auth: Auth) {
+//  TODO remove route from here and add
+//  TODO addRoute function to attach the route
         self.route = route
         self.auth = auth
         self.name = route.name
