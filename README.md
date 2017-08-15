@@ -3,7 +3,7 @@
 This repository contains a Swift HTTP server
 
 ### Requirements
-[Swift 3.0+](https://swift.org/download/#releases)
+[Swift 3.1+](https://swift.org/download/#releases)
 
 ### Running
 ```
