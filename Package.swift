@@ -15,6 +15,8 @@ let package = Package(
             Target(name: "HTTPRequest",
                     dependencies: ["FileSystem", "Templates", "SimpleURL"]),
             Target(name: "HTTPResponse"),
+            Target(name: "MiddleWare",
+                    dependencies: ["HTTPResponse", "HTTPRequest", "Routes"]),
             Target(name: "Main",
                     dependencies: ["CommandLineParser", "Configuration", "Server"]),
             Target(name: "Routes",
