@@ -4,6 +4,7 @@ import HTTPResponse
 import HTTPRequest
 import Routes
 import SimpleURL
+import MiddleWare
 import Dispatch
 import Configuration
 import FileSystem
@@ -20,6 +21,7 @@ public class Server {
     var serverRunning: Bool
     var routes: Routes!
     var fileManager: FileSystem
+    var middleWare: InvokAble?
     var logger: Logger?
     var connections: [Int32: Socket] = [:]
     public var listener: Socket!
@@ -30,6 +32,7 @@ public class Server {
         self.serverRunning = false
         self.hostName = appConfig.hostName
         self.fileManager = appConfig.fileManager
+        self.middleWare = appConfig.middleWare
         try addListener()
         addLogger(appConfig: appConfig)
         routes = appConfig.serverRoutes
@@ -116,9 +119,13 @@ public class Server {
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
+        var response: HTTPResponse
         let relativeURL = request.requestLine.target.replacingOccurrences(of: self.directory, with: "")
         let url = simpleURL(path: self.directory, baseName: relativeURL)
-        let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
+        if let middleWare = middleWare {
+            response =  middleWare.invoke(request: request, url: url, fileManager: fileManager)
+        }
+        response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         closeClientSocket(clientSocket: clientSocket)

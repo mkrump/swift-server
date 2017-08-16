@@ -4,6 +4,7 @@ import HTTPRequest
 import SimpleURL
 import FileSystem
 import Templates
+import MiddleWare
 
 public class Routes {
     var routes: [String: Route]
@@ -44,6 +45,10 @@ public class Routes {
         } else {
             return CommonResponses.MethodNotAllowedResponse(methods: route.methods)
         }
+    }
+
+    public func invoke(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {
+        return routeRequest(request: request, url: url, fileManager: fileManager)
     }
 
     public func routeRequest(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {

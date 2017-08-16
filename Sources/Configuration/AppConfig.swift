@@ -11,16 +11,19 @@ public struct AppConfig {
     public var logPath: String?
     public var hostName: String
     public var serverRoutes: Routes
+    public var middleWare: InvokAble?
     public var auth: ((Route) -> AuthMiddleWare)?
 
     public init(directory: String, portNumber: Int, fileManager: FileSystem,
-                logPath: String? = nil, hostName: String, auth: ((Route) -> AuthMiddleWare)? = nil) {
+                logPath: String? = nil, hostName: String, auth: ((Route) -> AuthMiddleWare)? = nil,
+                middleWare: InvokAble? = nil) {
         self.directory = directory
         self.portNumber = portNumber
         self.fileManager = fileManager
         self.logPath = logPath
         self.hostName = hostName
         self.auth = auth
+        self.middleWare = middleWare
         serverRoutes = Routes()
     }
 }

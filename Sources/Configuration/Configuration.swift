@@ -25,27 +25,11 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     ]
 }
 
-public func middlewareBuilder(auth: Auth) -> (Route) -> AuthMiddleWare {
-    return { (route: Route) in
-        AuthMiddleWare(route: route, auth: auth)
-    }
-}
-
-public func addMiddleWare(routes: Routes, middleware: (Route) -> AuthMiddleWare, routeNames: [String]) {
-    routeNames.forEach({ routeName in
-        if let routeName = routes.getRoute(routeName: routeName) {
-            routes.addRoute(route: middleware(routeName))
-        }
-    })
-}
-
-var credentials = Auth(credentials: ["admin": "hunter2"])
 
 public var appConfig = AppConfig(
         directory: "./",
         portNumber: 5000,
         fileManager: ServerFileManager(),
         logPath: "/server.log",
-        hostName: "0.0.0.0",
-        auth: middlewareBuilder(auth: credentials)
+        hostName: "0.0.0.0"
 )

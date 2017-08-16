@@ -1,4 +1,5 @@
-import Routes
+import SimpleURL
+import FileSystem
 import HTTPRequest
 import HTTPResponse
 
@@ -17,17 +18,23 @@ public struct Auth {
     }
 }
 
-public class AuthMiddleWare: Route {
-    var route: Route
-    var auth: Auth
-    public var name: String
-    public var methods: [String]
+public protocol InvokAble {
+    func invoke(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse
+}
 
-    public init(route: Route, auth: Auth) {
-        self.route = route
+public protocol MiddleWare {
+    var next: InvokAble { get }
+}
+
+//TODO Add a terminal type of middleware that does not require next
+//TODO use this type for last in pipeline
+public class AuthMiddleWare: MiddleWare {
+    public var next: InvokAble
+    var auth: Auth
+
+    public init(auth: Auth, next: InvokAble) {
         self.auth = auth
-        self.name = route.name
-        self.methods = route.methods
+        self.next = next
     }
 
     func getCredentials(headers: HeaderParse?) -> (userName: String?, passWord: String?)? {
@@ -40,15 +47,15 @@ public class AuthMiddleWare: Route {
         return (userName: credentials.userName, passWord: credentials.passWord)
     }
 
-    public func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
+    public func invoke(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {
         guard let credentials = getCredentials(headers: request.headers),
               let userName = credentials.userName,
               let password = credentials.passWord else {
-            return CommonResponses.UnauthorizedResponse(realmName: route.name)
+            return CommonResponses.UnauthorizedResponse(realmName: url.path)
         }
         if auth.authorized(userNameAttempt: userName, passwordAttempt: password) {
-            return route.handleRequest(request: request)
+            return next.invoke(request: request, url: url, fileManager: fileManager)
         }
-        return CommonResponses.UnauthorizedResponse(realmName: route.name)
+        return CommonResponses.UnauthorizedResponse(realmName: url.path)
     }
 }
