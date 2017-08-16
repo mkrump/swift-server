@@ -6,6 +6,7 @@ import MiddleWare
 
 public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     return [
+        AdminRoute(name: "/admin", methods: ["GET"]),
         CookieRoute(name: "/cookie", methods: ["GET"]),
         EatCookieRoute(name: "/eat_cookie", methods: ["GET"]),
         FormRoute(name: "/form", methods: ["GET", "POST", "PUT", "DELETE"]),
