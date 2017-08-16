@@ -8,6 +8,6 @@ let args = try commandArgLineParser.getOpt(argc: CommandLine.argc, argv: Command
 appConfig.directory = args.directory
 appConfig.portNumber = args.portNumber
 appConfig.serverRoutes = addRoutes(appConfig: appConfig)
-addMiddleWare(routes: appConfig.serverRoutes)
+addMiddleWare(routes: appConfig.serverRoutes, middleware: appConfig.auth!, routeNames: ["/logs"])
 let server = try Server(appConfig: appConfig)
 _ = try server.start()

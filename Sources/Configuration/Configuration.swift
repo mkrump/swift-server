@@ -4,8 +4,6 @@ import FileSystem
 import AppRoutes
 import MiddleWare
 
-var creds = Auth(credentials: ["admin": "hunter2"])
-
 public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     return [
         CookieRoute(name: "/cookie", methods: ["GET"]),
@@ -18,28 +16,35 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
         CoffeeRoute(name: "/coffee", methods: ["GET"]),
         TeaRoute(name: "/tea", methods: ["GET"]),
         LogRoute(name: "/logs", methods: ["GET"],
-                        fileManager: appConfig.fileManager,
-                        logPath: simpleURL(path: appConfig.directory, baseName: appConfig.logPath!)),
+                fileManager: appConfig.fileManager,
+                logPath: simpleURL(path: appConfig.directory, baseName: appConfig.logPath!)),
         RedirectRoute(name: "/redirect", newRoute: "/"),
         PatchRoute(url: simpleURL(path: appConfig.directory, baseName: "/patch-content.txt"),
                 methods: ["GET", "PATCH"], fileManager: appConfig.fileManager)
     ]
 }
 
-//TODO refine this s.t. can just add list of routes and map over it
-//[].addMiddleWare(AuthMiddleWare)
-public func addMiddleWare(routes: Routes) {
-    for routeName in ["/logs", "/tea"] {
-        if let routeName = routes.getRoute(routeName: routeName) {
-            routes.addRoute(route: AuthMiddleWare(route: routeName, auth: creds))
-        }
+public func middlewareBuilder(auth: Auth) -> (Route) -> AuthMiddleWare {
+    return { (route: Route) in
+        AuthMiddleWare(route: route, auth: auth)
     }
 }
+
+public func addMiddleWare(routes: Routes, middleware: (Route) -> AuthMiddleWare, routeNames: [String]) {
+    routeNames.forEach({ routeName in
+        if let routeName = routes.getRoute(routeName: routeName) {
+            routes.addRoute(route: middleware(routeName))
+        }
+    })
+}
+
+var credentials = Auth(credentials: ["admin": "hunter2"])
 
 public var appConfig = AppConfig(
         directory: "./",
         portNumber: 5000,
         fileManager: ServerFileManager(),
         logPath: "/server.log",
-        hostName: "0.0.0.0"
+        hostName: "0.0.0.0",
+        auth: middlewareBuilder(auth: credentials)
 )
