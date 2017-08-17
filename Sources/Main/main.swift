@@ -10,6 +10,7 @@ let args = try commandArgLineParser.getOpt(argc: CommandLine.argc, argv: Command
 appConfig.directory = args.directory
 appConfig.portNumber = args.portNumber
 appConfig.serverRoutes = addRoutes(appConfig: appConfig)
-appConfig.serverRoutes = AuthMiddleWare(auth: credentials, next: nil)
+appConfig.middleware!.addMiddleWare(middleWare: AuthMiddleware(auth: credentials), route: "/logs")
+appConfig.middleware!.addMiddleWare(middleWare: AuthMiddleware(auth: credentials), route: "/admin")
 let server = try Server(appConfig: appConfig)
 _ = try server.start()

@@ -25,11 +25,11 @@ public func initializeRoutes(appConfig: AppConfig) -> [Route] {
     ]
 }
 
-
 public var appConfig = AppConfig(
         directory: "./",
         portNumber: 5000,
         fileManager: ServerFileManager(),
         logPath: "/server.log",
-        hostName: "0.0.0.0"
+        hostName: "0.0.0.0",
+        middleWare: MiddlewareExecutor()
 )

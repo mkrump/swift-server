@@ -17,13 +17,6 @@ public class Routes {
         routes.updateValue(route, forKey: route.name)
     }
 
-    public func getRoute(routeName: String) -> Route? {
-        if let route = routes[routeName] {
-            return route
-        }
-        return nil
-    }
-
     public func removeRoute(route: Route) {
         routes.removeValue(forKey: route.name)
     }
@@ -45,10 +38,6 @@ public class Routes {
         } else {
             return CommonResponses.MethodNotAllowedResponse(methods: route.methods)
         }
-    }
-
-    public func invoke(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {
-        return routeRequest(request: request, url: url, fileManager: fileManager)
     }
 
     public func routeRequest(request: HTTPRequestParse, url: simpleURL, fileManager: FileSystem) -> HTTPResponse {

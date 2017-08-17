@@ -21,7 +21,7 @@ public class Server {
     var serverRunning: Bool
     var routes: Routes!
     var fileManager: FileSystem
-    var middleWare: InvokAble?
+    var middleWare: MiddlewareExecutor?
     var logger: Logger?
     var connections: [Int32: Socket] = [:]
     public var listener: Socket!
@@ -32,7 +32,7 @@ public class Server {
         self.serverRunning = false
         self.hostName = appConfig.hostName
         self.fileManager = appConfig.fileManager
-        self.middleWare = appConfig.middleWare
+        self.middleWare = appConfig.middleware
         try addListener()
         addLogger(appConfig: appConfig)
         routes = appConfig.serverRoutes
@@ -120,12 +120,24 @@ public class Server {
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
         var response: HTTPResponse
+        var middlewareResponse: MiddlewareResponse
         let relativeURL = request.requestLine.target.replacingOccurrences(of: self.directory, with: "")
         let url = simpleURL(path: self.directory, baseName: relativeURL)
         if let middleWare = middleWare {
-            response =  middleWare.invoke(request: request, url: url, fileManager: fileManager)
+            middlewareResponse = middleWare.execute(request: request, url: url, fileManager: fileManager)
+            if let response = middlewareResponse.response {
+                try transmitResponse(response: response, clientSocket: clientSocket)
+            } else {
+                response = routes.routeRequest(request: middlewareResponse.request, url: url, fileManager: fileManager)
+                try transmitResponse(response: response, clientSocket: clientSocket)
+            }
+        } else {
+            response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
+            try transmitResponse(response: response, clientSocket: clientSocket)
         }
-        response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
+    }
+
+    private func transmitResponse(response: HTTPResponse, clientSocket: Socket) throws {
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         closeClientSocket(clientSocket: clientSocket)
