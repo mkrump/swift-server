@@ -32,10 +32,8 @@ public class Server {
         self.serverRunning = false
         self.hostName = appConfig.hostName
         self.fileManager = appConfig.fileManager
-        self.middleWare = appConfig.middleware
         try addListener()
         addLogger(appConfig: appConfig)
-        routes = appConfig.serverRoutes
     }
 
     private func addListener() throws {
@@ -45,6 +43,14 @@ public class Server {
         } catch {
             throw ServerErrors.socketCreationFailed
         }
+    }
+
+    public func addRoutes(routes: Routes) {
+        self.routes = routes
+    }
+
+    public func addMiddleware(middleware: MiddlewareExecutor) {
+        self.middleWare = middleware
     }
 
     private func addLogger(appConfig: AppConfig) {
@@ -123,6 +129,7 @@ public class Server {
         var middlewareResponse: MiddlewareResponse
         let relativeURL = request.requestLine.target.replacingOccurrences(of: self.directory, with: "")
         let url = simpleURL(path: self.directory, baseName: relativeURL)
+//        TODO simplify this
         if let middleWare = middleWare {
             middlewareResponse = middleWare.execute(request: request, url: url, fileManager: fileManager)
             if let response = middlewareResponse.response {

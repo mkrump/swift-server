@@ -6,7 +6,8 @@ import FileSystem
 import Templates
 import Routes
 
-public class PatchRoute: Route {
+public class PatchRoute: NonVirtual {
+
     public var name: String
     public var methods: [String]
     public var isDir: Bool
@@ -15,7 +16,7 @@ public class PatchRoute: Route {
     public var url: simpleURL!
     public var fileManager: FileSystem
 
-    public init(url: simpleURL, methods: [String], fileManager: FileSystem, mimeType: String? = nil) {
+    public required init(name: String, methods: [String], url: simpleURL, fileManager: FileSystem, isDir: Bool? = nil, mimeType: String?) {
         self.name = url.baseName
         self.methods = methods
         self.isDir = false

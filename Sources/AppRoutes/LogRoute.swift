@@ -6,18 +6,18 @@ import FileSystem
 import Templates
 import Routes
 
-public class LogRoute: Route {
+public class LogRoute: NonVirtual {
+    public required init(name: String, methods: [String], url: simpleURL, fileManager: FileSystem, isDir: Bool?, mimeType: String?) {
+        self.name = name
+        self.methods = methods
+        self.logPath = url
+        self.fileManager = fileManager
+    }
+
     public var name: String
     public var methods: [String]
     var logPath: simpleURL?
     var fileManager: FileSystem
-
-    public init(name: String, methods: [String], fileManager: FileSystem, logPath: simpleURL? = nil) {
-        self.name = name
-        self.methods = methods
-        self.logPath = logPath
-        self.fileManager = fileManager
-    }
 
     public func handleRequest(request: HTTPRequestParse) -> HTTPResponse {
         if let logPath = logPath {

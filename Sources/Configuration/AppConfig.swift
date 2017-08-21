@@ -1,8 +1,10 @@
 import Foundation
 import FileSystem
 import SimpleURL
+import HTTPResponse
 import Routes
 import MiddleWare
+import AppRoutes
 
 public struct AppConfig {
     public var directory: String
@@ -26,13 +28,23 @@ public struct AppConfig {
         self.middleware = middleWare
         serverRoutes = Routes()
     }
-}
 
-public func addRoutes(appConfig: AppConfig) -> Routes {
-    let routes = Routes()
-    let virtualRoutes = initializeRoutes(appConfig: appConfig)
-    for route in virtualRoutes {
-        routes.addRoute(route: route)
+    public func addRoute<T:Virtual>(route: T.Type, name: String, methods: [String]) {
+        let route = route.init(name: name, methods: methods)
+        serverRoutes.addRoute(route: route)
     }
-    return routes
+
+    public func addRoute<T:Redirect>(route: T.Type, name: String, newRoute: String) {
+        let route = route.init(name: name, newRoute: newRoute)
+        serverRoutes.addRoute(route: route)
+    }
+
+    public func addRoute<T:NonVirtual>(route: T.Type, name: String, methods: [String],
+                                       baseName: String, isDir: Bool? = false, mimeType: String? = nil) {
+        let url = simpleURL(path: directory, baseName: baseName)
+        let fileMimeType = mimeType ?? inferContentType(fileName: url.fullName)
+        let route = route.init(name: name, methods: methods, url: url, fileManager: fileManager,
+                isDir: isDir, mimeType: fileMimeType)
+        serverRoutes.addRoute(route: route)
+    }
 }

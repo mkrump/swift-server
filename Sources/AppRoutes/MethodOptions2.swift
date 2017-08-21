@@ -4,11 +4,11 @@ import HTTPRequest
 import Templates
 import Routes
 
-public class MethodOptions2: Route {
+public class MethodOptions2: Virtual {
     public var name: String
     public var methods: [String]
 
-    public init(name: String, methods: [String]) {
+    required public init(name: String, methods: [String]) {
         self.name = name
         self.methods = methods
     }
