@@ -22,18 +22,16 @@ public class Server {
     var routes: Routes!
     var fileManager: FileSystem
     var middleWare: MiddlewareExecutor?
-    var logger: Logger?
     var connections: [Int32: Socket] = [:]
     public var listener: Socket!
 
-    public init(appConfig: AppConfig) throws {
+    public init(appConfig: App) throws {
         self.portNumber = appConfig.portNumber
         self.directory = appConfig.directory
         self.serverRunning = false
         self.hostName = appConfig.hostName
         self.fileManager = appConfig.fileManager
         try addListener()
-        addLogger(appConfig: appConfig)
     }
 
     private func addListener() throws {
@@ -51,16 +49,6 @@ public class Server {
 
     public func addMiddleware(middleware: MiddlewareExecutor) {
         self.middleWare = middleware
-    }
-
-    private func addLogger(appConfig: AppConfig) {
-        if let logPath = appConfig.logPath {
-            do {
-                self.logger = try Logger(url: simpleURL(path: self.directory, baseName: logPath))
-            } catch {
-                print("Couldn't create log file at: \(logPath)")
-            }
-        }
     }
 
     deinit {
@@ -96,7 +84,6 @@ public class Server {
             closeClientSocket(clientSocket: clientSocket)
             return
         }
-        logRequest(parsedRequest: parsedRequest)
         try? self.respond(request: parsedRequest, clientSocket: clientSocket)
     }
 
@@ -115,29 +102,22 @@ public class Server {
         clientSocket.close()
     }
 
-    private func logRequest(parsedRequest: HTTPRequestParse) {
-        if let logger = self.logger {
-            let date = Date().dateToRFC822String()
-            let request = parsedRequest.requestLine.rawRequestLine
-            let logLine = "[\(date)] \(request)"
-            logger.appendLog(contents: logLine)
+    private func applyMiddleware(middleWare: MiddlewareExecutor, request: HTTPRequestParse, clientSocket: Socket, url: simpleURL) throws {
+        let middlewareResponse = middleWare.execute(request: request, url: url, fileManager: fileManager)
+        if let response = middlewareResponse.response {
+            try transmitResponse(response: response, clientSocket: clientSocket)
+        } else {
+            let response = routes.routeRequest(request: middlewareResponse.request, url: url, fileManager: fileManager)
+            try transmitResponse(response: response, clientSocket: clientSocket)
         }
     }
 
     private func respond(request: HTTPRequestParse, clientSocket: Socket) throws {
         var response: HTTPResponse
-        var middlewareResponse: MiddlewareResponse
         let relativeURL = request.requestLine.target.replacingOccurrences(of: self.directory, with: "")
         let url = simpleURL(path: self.directory, baseName: relativeURL)
-//        TODO simplify this
         if let middleWare = middleWare {
-            middlewareResponse = middleWare.execute(request: request, url: url, fileManager: fileManager)
-            if let response = middlewareResponse.response {
-                try transmitResponse(response: response, clientSocket: clientSocket)
-            } else {
-                response = routes.routeRequest(request: middlewareResponse.request, url: url, fileManager: fileManager)
-                try transmitResponse(response: response, clientSocket: clientSocket)
-            }
+            try applyMiddleware(middleWare: middleWare, request: request, clientSocket: clientSocket, url: url)
         } else {
             response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
             try transmitResponse(response: response, clientSocket: clientSocket)

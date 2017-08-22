@@ -11,7 +11,7 @@ class SwiftServerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         do {
-            let appConfig = AppConfig(
+            let appConfig = App(
                     directory: "/tmp",
                     portNumber: 5000,
                     fileManager: ServerFileManager(),

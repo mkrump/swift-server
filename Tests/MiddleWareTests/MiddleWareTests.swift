@@ -33,7 +33,7 @@ class MiddleWareTests: XCTestCase {
 
     func generateMockResponses(userNameAttempt: String?,
                                passwordAttempt: String?, target: String) -> MiddlewareResponse {
-        let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: target, httpVersion: "HTTTP/1.1")
+        let mockStartLine = MockRequestLine(httpMethod: "HEAD", target: target, httpVersion: "HTTTP/1.1", rawRequestLine: "")
         let mockHTTPParse = addBasicAuthHeader(userNameAttempt: userNameAttempt,
                 passwordAttempt: passwordAttempt, mockStartLine: mockStartLine)
         let mockNoDirFileManager = MockIsRoute()

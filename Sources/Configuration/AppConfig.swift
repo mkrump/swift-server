@@ -6,7 +6,7 @@ import Routes
 import MiddleWare
 import AppRoutes
 
-public struct AppConfig {
+public struct App {
     public var directory: String
     public var portNumber: Int
     public var fileManager: FileSystem
