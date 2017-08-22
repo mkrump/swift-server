@@ -40,8 +40,10 @@ public struct App {
     }
 
     public func addRoute<T:NonVirtual>(route: T.Type, name: String, methods: [String],
-                                       baseName: String, isDir: Bool? = false, mimeType: String? = nil) {
-        let url = simpleURL(path: directory, baseName: baseName)
+                                       directory: String? = nil, baseName: String, isDir: Bool? = false, mimeType: String? = nil) {
+        var path: String
+        path = directory ?? self.directory
+        let url = simpleURL(path: path, baseName: baseName)
         let fileMimeType = mimeType ?? inferContentType(fileName: url.fullName)
         let route = route.init(name: name, methods: methods, url: url, fileManager: fileManager,
                 isDir: isDir, mimeType: fileMimeType)

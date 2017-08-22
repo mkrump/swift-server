@@ -17,10 +17,13 @@ public func createSwiftApp(directory: String, portNumber: Int) -> App {
 
     let credentials = Auth(credentials: ["admin": "hunter2"])
 
+//  Add Routes
     app.addRoute(route: AdminRoute.self, name: "/admin", methods: ["GET"])
     app.addRoute(route: RedirectRoute.self, name: "/redirect", newRoute: "/")
-    app.addRoute(route: LogRoute.self, name: "/logs", methods: ["GET"], baseName: "/server.log")
-    app.addRoute(route: PatchRoute.self, name: "/patch-content.txt", methods: ["GET", "PATCH"], baseName: "/patch-content.txt")
+    app.addRoute(route: LogRoute.self, name: "/logs", methods: ["GET"],
+            directory: app.fileManager.currentDirectoryPath(), baseName: "/server.log")
+    app.addRoute(route: PatchRoute.self, name: "/patch-content.txt", methods: ["GET", "PATCH"],
+            baseName: "/patch-content.txt")
     app.addRoute(route: CookieRoute.self, name: "/cookie", methods: ["GET"])
     app.addRoute(route: EatCookieRoute.self, name: "/eat_cookie", methods: ["GET"])
     app.addRoute(route: FormRoute.self, name: "/form", methods: ["GET", "POST", "PUT", "DELETE"])
@@ -29,7 +32,10 @@ public func createSwiftApp(directory: String, portNumber: Int) -> App {
     app.addRoute(route: MethodOptions2.self, name: "/method_options2", methods: ["GET", "OPTIONS"])
     app.addRoute(route: CoffeeRoute.self, name: "/coffee", methods: ["GET"])
     app.addRoute(route: TeaRoute.self, name: "/tea", methods: ["GET"])
-    app.middleware!.addMiddleWare(middleWare: LoggerMiddleware(logPath: simpleURL(path: app.directory, baseName: "/server.log")))
+
+//  Add MiddleWare
+    app.middleware!.addMiddleWare(middleWare: LoggerMiddleware(logPath:
+    simpleURL(path: app.fileManager.currentDirectoryPath(), baseName: "/server.log")))
     app.middleware!.addMiddleWare(middleWare: AuthMiddleware(auth: credentials), route: "/logs")
     app.middleware!.addMiddleWare(middleWare: AuthMiddleware(auth: credentials), route: "/admin")
 

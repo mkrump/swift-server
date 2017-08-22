@@ -7,6 +7,7 @@ class HTTPRequestParserTests: XCTestCase {
     var testHeaders: String!
     var testMessageBody: String!
     var testMessage: String!
+    var testHeaderAndRequestLine: String!
 
     override func setUp() {
         super.setUp()
@@ -15,49 +16,43 @@ class HTTPRequestParserTests: XCTestCase {
                 "Connection: Keep-Alive\r\nUser-Agent: Apache-HttpClient/4.3.5 (java 1.5)\r\n" +
                 "Accept-Encoding: gzip,deflate"
         testMessageBody = "My\"=\"Data\""
-        testMessage = testRequestLine + "\r\n" +
-                testHeaders + "\r\n\r\n" +
-                testMessageBody
+        testHeaderAndRequestLine = testRequestLine + "\r\n" +
+                testHeaders
+        testMessage = testHeaderAndRequestLine + "\r\n\r\n" + testMessageBody
     }
 
     override func tearDown() {
         super.tearDown()
     }
 
-    func testHTTPParserTopLevelParse() {
-        if let httpRequestParser = try? HTTPParsedRequest(request: testMessage),
-           let requestLine = httpRequestParser.requestLine,
-           let headers = httpRequestParser.headers,
-           let headersDict = httpRequestParser.headers!.headerDict,
-           let messageBody = httpRequestParser.messageBody {
-            XCTAssertNotNil(requestLine)
-            XCTAssertEqual(headers.rawHeaders, testHeaders)
-            XCTAssertEqual(messageBody, testMessageBody)
-            XCTAssertEqual(headersDict, ["Content-Length": "11",
-                                         "Host": "localhost:5000",
-                                         "Connection": "Keep-Alive",
-                                         "User-Agent": "Apache-HttpClient/4.3.5 (java 1.5)",
-                                         "Accept-Encoding": "gzip,deflate"])
-        } else {
-            XCTFail()
-            return
-        }
+    func testParseHTTPRequest() {
+        let requestAndBody = try? parseHTTPRequest(request: testMessage)
+        XCTAssertEqual(requestAndBody!.messageBody, testMessageBody)
+        XCTAssertEqual(requestAndBody!.headerAndRequestLine, testHeaderAndRequestLine)
     }
 
-    func testHTTPParserHeaderParse() {
-        guard let httpRequestParser = try? HTTPParsedRequest(request: testMessage),
-              let headers = httpRequestParser.headers else {
-            XCTFail()
-            return
-        }
-        XCTAssertEqual(headers.rawHeaders, testHeaders)
+    func testParseRequestLine() {
+        let requestLine = try? parseRequestLine(requestLine: testRequestLine)
+        XCTAssertEqual(requestLine!.target, "/form")
+        XCTAssertEqual(requestLine!.httpMethod, "POST")
+        XCTAssertEqual(requestLine!.httpVersion, "HTTP/1.1")
+    }
+
+    func testHeaderParser() {
+        let headersDict = parseHeaders(headers: testHeaders)
+        XCTAssertEqual(headersDict!, ["Content-Length": "11",
+                                      "Host": "localhost:5000",
+                                      "Connection": "Keep-Alive",
+                                      "User-Agent": "Apache-HttpClient/4.3.5 (java 1.5)",
+                                      "Accept-Encoding": "gzip,deflate"])
+
     }
 
     func testBadRequest() {
-        XCTAssertThrowsError(try HTTPParsedRequest(request: "BAD REQUEST!!!"))
+        XCTAssertThrowsError(try parseRequestLine(requestLine: "BAD REQUEST!!!"))
     }
 
     func testBadStartLine() {
-        XCTAssertThrowsError(try HTTPParsedRequest(request: "POST /route"))
+        XCTAssertThrowsError(try parseRequestLine(requestLine: "POST /route"))
     }
 }

@@ -9,16 +9,12 @@ import Dispatch
 import Configuration
 import FileSystem
 
-enum ServerErrors: Error {
-    case socketCreationFailed
-    case badRequest
-}
-
 public class Server {
     let portNumber: Int
     let directory: String
     let hostName: String
     var serverRunning: Bool
+    var serverRequestParser: ServerRequestParsing
     var routes: Routes!
     var fileManager: FileSystem
     var middleWare: MiddlewareExecutor?
@@ -26,6 +22,7 @@ public class Server {
     public var listener: Socket!
 
     public init(appConfig: App) throws {
+        self.serverRequestParser = ServerRequestParser()
         self.portNumber = appConfig.portNumber
         self.directory = appConfig.directory
         self.serverRunning = false
@@ -79,7 +76,7 @@ public class Server {
     private func handleClientRequest(clientSocket: Socket) {
         self.connections[clientSocket.socketfd] = clientSocket
         guard let request = try? self.readClientSocket(clientSocket: clientSocket),
-              let parsedRequest = try? self.parseRequest(request: request) else {
+              let parsedRequest = try? serverRequestParser.parseRequest(request: request) else {
             _ = try? clientSocket.write(from: CommonResponses.badRequestResponse().generateResponse())
             closeClientSocket(clientSocket: clientSocket)
             return
@@ -104,11 +101,12 @@ public class Server {
 
     private func applyMiddleware(middleWare: MiddlewareExecutor, request: HTTPRequestParse, clientSocket: Socket, url: simpleURL) throws {
         let middlewareResponse = middleWare.execute(request: request, url: url, fileManager: fileManager)
-        if let response = middlewareResponse.response {
-            try transmitResponse(response: response, clientSocket: clientSocket)
-        } else {
-            let response = routes.routeRequest(request: middlewareResponse.request, url: url, fileManager: fileManager)
-            try transmitResponse(response: response, clientSocket: clientSocket)
+        switch (middlewareResponse.request, middlewareResponse.response) {
+            case let (_, .some(middlewareResponse)):
+                try transmitResponse(response: middlewareResponse, clientSocket: clientSocket)
+            case let (request, nil):
+                let response = routes.routeRequest(request: request, url: url, fileManager: fileManager)
+                try transmitResponse(response: response, clientSocket: clientSocket)
         }
     }
 
@@ -128,13 +126,6 @@ public class Server {
         let responseData = response.generateResponse()
         try clientSocket.write(from: responseData)
         closeClientSocket(clientSocket: clientSocket)
-    }
-
-    private func parseRequest(request: String) throws -> HTTPRequestParse {
-        guard let parsedRequest = try? HTTPParsedRequest(request: request) else {
-            throw ServerErrors.badRequest
-        }
-        return parsedRequest
     }
 
     private func handleStopSignal(request: String, clientSocket: Socket) {

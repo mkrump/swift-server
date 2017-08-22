@@ -46,7 +46,7 @@ public class MockRequestLine: RequestLineParse {
 }
 
 public class MockHTTParsedRequest: HTTPRequestParse {
-    public var requestLine: RequestLineParse!
+    public var requestLine: RequestLineParse
     public var headers: HeaderParse?
     public var headerDict: [String: String]?
     public var messageBody: String?
@@ -86,6 +86,10 @@ public class MockIsRoute: FileSystem {
 
     public func fileSize(atPath path: String) -> Int? {
         return nil
+    }
+
+    public func currentDirectoryPath() -> String {
+        return "./"
     }
 }
 

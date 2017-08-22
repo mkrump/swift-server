@@ -20,10 +20,8 @@ class HTTPHeaderTests: XCTestCase {
     }
 
     func testHeaderParse() {
-        let parsedHeaders = HTTPHeader(headerLine: testHeaders)
-        if let rawHeaders = parsedHeaders.rawHeaders,
-           let headerDict = parsedHeaders.headerDict {
-            XCTAssertEqual(rawHeaders, testHeaders)
+        let parsedHeaders = parseHeaders(headers: testHeaders)
+        if let headerDict = parsedHeaders {
             XCTAssertEqual(headerDict, ["Content-Length": "11",
                                         "Host": "localhost:5000", "Connection":
                                         "Keep-Alive", "User-Agent": "Apache-HttpClient/4.3.5 (java 1.5)",

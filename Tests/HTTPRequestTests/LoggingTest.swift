@@ -5,7 +5,7 @@ import XCTest
 
 class LoggingTests: XCTestCase {
     func testFileWrite() {
-        let url = simpleURL(path: "./", baseName: "testlog.log")
+        let url = simpleURL(path: "./Tests/", baseName: "test.log")
         let contents = "HI!"
         guard let logger = try? Logger(url: url) else {
             XCTFail()
@@ -20,7 +20,7 @@ class LoggingTests: XCTestCase {
     }
 
     func testMultipleFileWrites() {
-        let url = simpleURL(path: "./", baseName: "test_log.log")
+        let url = simpleURL(path: "./Tests/", baseName: "test.log")
         let contents = "HI!"
         guard let logger = try? Logger(url: url) else {
             XCTFail()

@@ -6,6 +6,7 @@ public protocol FileSystem {
     func contents(atPath path: String) -> Data?
     func partialContents(atPath path: String, range: Range<Int>) -> Data?
     func fileSize(atPath path: String) -> Int?
+    func currentDirectoryPath() -> String
 }
 
 public class ServerFileManager: FileSystem {
@@ -46,5 +47,9 @@ public class ServerFileManager: FileSystem {
             return fileContents.subdata(in: range)
         }
         return nil
+    }
+
+    public func currentDirectoryPath() -> String {
+        return FileManager.default.currentDirectoryPath
     }
 }

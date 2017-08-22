@@ -16,10 +16,10 @@ class LoggingMiddlewareTests: XCTestCase {
     var secondStepAuth: Auth!
 
     override func setUp() {
-        path = "./"
-        logFileName = "test_logger.log"
+        path = "./Tests/"
+        logFileName = "test.log"
         logUrl = simpleURL(path: path, baseName: logFileName)
-        authMiddleware = LoggerMiddleware(logPath: simpleURL(path: path, baseName: logFileName))
+        authMiddleware = LoggerMiddleware(logPath: logUrl)
         middlewareExecutor = MiddlewareExecutor()
         middlewareExecutor.addMiddleWare(middleWare: authMiddleware)
         super.setUp()
